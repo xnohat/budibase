@@ -3637,5 +3637,18 @@
         "key": "value"
       }
     ]
+  },
+  "qrreader": {
+    "name": "QR Code Reader",
+    "icon": "UploadToCloud",
+    "styles": ["size"],
+    "editable": true,
+    "settings": [
+      {
+        "type": "field/string",
+        "label": "Field",
+        "key": "field"
+      }
+    ]
   }
 }

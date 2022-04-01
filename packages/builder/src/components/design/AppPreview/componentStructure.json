@@ -45,7 +45,8 @@
       "daterangepicker",
       "multifieldselect",
       "jsonfield",
-      "s3upload"
+      "s3upload",
+      "qrreader"
     ]
   },
   {
