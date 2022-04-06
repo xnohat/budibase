@@ -110,6 +110,7 @@
             componentInstance[setting.key]?.defaultValue}
           nested={setting.nested}
           onChange={val => updateProp(setting.key, val)}
+          tooltip={setting.tooltip}
           props={{
             options: setting.options || [],
             placeholder: setting.placeholder || null,

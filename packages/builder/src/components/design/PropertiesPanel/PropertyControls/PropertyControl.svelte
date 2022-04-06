@@ -16,6 +16,7 @@
   export let bindings = []
   export let componentBindings = []
   export let nested = false
+  export let tooltip
 
   $: allBindings = getAllBindings(bindings, componentBindings, nested)
   $: safeValue = getSafeValue(value, props.defaultValue, allBindings)
@@ -65,7 +66,7 @@
 <div class="property-control" data-cy={`setting-${key}`}>
   {#if type !== "boolean" && label}
     <div class="label">
-      <Label>{label}</Label>
+      <Label {tooltip}>{label}</Label>
     </div>
   {/if}
   <div data-cy={`${key}-prop-control`} class="control">
