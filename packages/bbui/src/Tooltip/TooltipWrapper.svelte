@@ -23,7 +23,7 @@
       </div>
       {#if showTooltip}
         <div class="tooltip">
-          <Tooltip textWrapping={true} direction={"bottom"} text={tooltip} />
+          <Tooltip textWrapping={true} direction="top" text={tooltip} />
         </div>
       {/if}
     </div>
@@ -47,7 +47,8 @@
     position: absolute;
     display: flex;
     justify-content: center;
-    top: 15px;
+    top: 0;
+    transform: translateY(-100%);
     z-index: 100;
     width: 160px;
   }
