@@ -26,9 +26,9 @@ const createComponentStore = () => {
 
       // Derive the selected component instance and definition
       let asset
-      const { screen, selectedComponentId } = $builderState
+      const { layout, screen, previewType, selectedComponentId } = $builderState
       if ($builderState.inBuilder) {
-        asset = screen
+        asset = previewType === "layout" ? layout : screen
       } else {
         asset = $screenState.activeScreen
       }

@@ -108,7 +108,9 @@
   // Interactive components can be selected, dragged and highlighted inside
   // the builder preview
   $: builderInteractive =
-    $builderStore.inBuilder && insideScreenslot && !isBlock
+    $builderStore.inBuilder &&
+    ($builderStore.previewType === "layout" || insideScreenslot) &&
+    !isBlock
   $: devToolsInteractive = $devToolsStore.allowSelection && !isBlock
   $: interactive = builderInteractive || devToolsInteractive
   $: editing = editable && selected && $builderStore.editMode
@@ -216,6 +218,7 @@
     dynamicSettings = instanceSettings.dynamicSettings
 
     // Check if we have any missing required settings
+    /*
     missingRequiredSettings = settingsDefinition.filter(setting => {
       let empty = instance[setting.key] == null || instance[setting.key] === ""
       let missing = setting.required && empty
@@ -235,6 +238,7 @@
 
       return missing
     })
+    */
 
     // Force an initial enrichment of the new settings
     enrichComponentSettings(get(context), settingsDefinitionMap, {
@@ -458,18 +462,12 @@
     data-icon={icon}
   >
     <svelte:component this={constructor} bind:this={ref} {...initialSettings}>
-      {#if hasMissingRequiredSettings}
-        <ComponentPlaceholder />
-      {:else if children.length}
+      {#if children.length}
         {#each children as child (child._id)}
           <svelte:self instance={child} />
         {/each}
       {:else if emptyState}
-        {#if isScreen}
-          <ScreenPlaceholder />
-        {:else}
-          <Placeholder />
-        {/if}
+        <Placeholder />
       {:else if isBlock}
         <slot />
       {/if}

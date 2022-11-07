@@ -2,6 +2,13 @@ export const TableNames = {
   USERS: "ta_users",
 }
 
+export const FrontendTypes = {
+  PAGE: "page",
+  SCREEN: "screen",
+  LAYOUT: "layout",
+  NONE: "none",
+}
+
 export const AppStatus = {
   ALL: "all",
   DEV: "development",

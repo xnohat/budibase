@@ -1,28 +1,36 @@
-import { derived } from "svelte/store"
+import { derived, get } from "svelte/store"
 import { routeStore } from "./routes"
 import { builderStore } from "./builder"
 import { appStore } from "./app"
 import { RoleUtils } from "@budibase/frontend-core"
+import {
+  findComponentPathById,
+  findChildrenByType,
+  findComponentById,
+} from "../utils/components"
 
 const createScreenStore = () => {
   const store = derived(
     [appStore, routeStore, builderStore],
     ([$appStore, $routeStore, $builderStore]) => {
       let activeLayout, activeScreen
-      let screens
+      let layouts, screens
 
       if ($builderStore.inBuilder) {
         // Use builder defined definitions if inside the builder preview
+        activeLayout = $builderStore.layout
         activeScreen = $builderStore.screen
+        layouts = [activeLayout]
         screens = [activeScreen]
 
         // Legacy - allow the builder to specify a layout
-        if ($builderStore.layout) {
+        /*if ($builderStore.layout) {
           activeLayout = $builderStore.layout
-        }
+        }*/
       } else {
         // Find the correct screen by matching the current route
         screens = $appStore.screens || []
+        layouts = $appStore.layouts || []
         if ($routeStore.activeRoute) {
           activeScreen = screens.find(
             screen => screen._id === $routeStore.activeRoute.screenId
@@ -59,6 +67,16 @@ const createScreenStore = () => {
         // Then sort alphabetically
         return a.routing.route < b.routing.route ? -1 : 1
       })
+
+      //build structure of active custom layout to match with new client screen (after BB v1.0.219)
+      if (activeLayout) {
+        activeLayout.props._children.forEach(child => {
+          if (child._id == "7fcf11e4-6f5b-4085-8e0d-9f3d44c98967") { //catch screen slot component
+            child._id = "screenslot"
+            child._component = "screenslot"
+          }
+        })
+      }
 
       // If we don't have a legacy custom layout, build a layout structure
       // from the screen navigation settings
@@ -107,12 +125,42 @@ const createScreenStore = () => {
         }
       }
 
-      return { screens, activeLayout, activeScreen }
+      return { layouts, screens, activeLayout, activeScreen }
     }
   )
 
+  // Utils to parse component definitions
+  const actions = {
+    findComponentById: componentId => {
+      const { activeScreen, activeLayout } = get(store)
+      let result = findComponentById(activeScreen?.props, componentId)
+      if (result) {
+        return result
+      }
+      return findComponentById(activeLayout?.props)
+    },
+    findComponentPathById: componentId => {
+      const { activeScreen, activeLayout } = get(store)
+      let result = findComponentPathById(activeScreen?.props, componentId)
+      if (result) {
+        return result
+      }
+      return findComponentPathById(activeLayout?.props)
+    },
+    findChildrenByType: (componentId, type) => {
+      const component = actions.findComponentById(componentId)
+      if (!component || !component._children) {
+        return null
+      }
+      let children = []
+      findChildrenByType(component, type, children)
+      return children
+    },
+  }
+
   return {
     subscribe: store.subscribe,
+    actions,
   }
 }
 

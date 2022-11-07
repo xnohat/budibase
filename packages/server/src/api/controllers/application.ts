@@ -22,6 +22,9 @@ const {
   BUILTIN_ROLE_IDS,
   AccessController,
 } = require("@budibase/backend-core/roles")
+import { BASE_LAYOUTS } from "../../constants/layouts"
+import { cloneDeep } from "lodash/fp"
+const { processObject } = require("@budibase/string-templates")
 const { CacheKeys, bustCache } = require("@budibase/backend-core/cache")
 const {
   getAllApps,
@@ -265,27 +268,11 @@ const performAppCreate = async (ctx: any) => {
     updatedAt: new Date().toISOString(),
     createdAt: new Date().toISOString(),
     status: AppStatus.DEV,
-    navigation: {
-      navigation: "Top",
-      title: name,
-      navWidth: "Large",
-      navBackground: "var(--spectrum-global-color-gray-100)",
-      links: [
-        {
-          url: "/home",
-          text: "Home",
-        },
-      ],
-    },
-    theme: "spectrum--light",
-    customTheme: {
-      buttonBorderRadius: "16px",
-    },
   }
 
   // If we used a template or imported an app there will be an existing doc.
   // Fetch and migrate some metadata from the existing app.
-  try {
+   try {
     const existing: App = await db.get(DocumentType.APP_METADATA)
     const keys: (keyof App)[] = [
       "_rev",
@@ -302,18 +289,27 @@ const performAppCreate = async (ctx: any) => {
     })
 
     // Migrate navigation settings and screens if required
+    /*
     if (existing) {
       const navigation = await migrateAppNavigation()
       if (navigation) {
         newApplication.navigation = navigation
       }
     }
+    */
+
   } catch (err) {
     // Nothing to do
   }
 
   const response = await db.put(newApplication, { force: true })
   newApplication._rev = response.rev
+
+  // Only create the default home screens and layout if we aren't importing
+  // an app
+  if (useTemplate !== "true") {
+    await createEmptyAppPackage(ctx, newApplication)
+  }
 
   /* istanbul ignore next */
   if (!env.isTest()) {
@@ -641,4 +637,16 @@ const migrateAppNavigation = async () => {
   } else {
     return null
   }
+}
+
+const createEmptyAppPackage = async (ctx: any, app: any) => {
+  const db = context.getAppDB()
+
+  let screensAndLayouts = []
+  for (let layout of BASE_LAYOUTS) {
+    const cloned = cloneDeep(layout)
+    screensAndLayouts.push(await processObject(cloned, app))
+  }
+
+  await db.bulkDocs(screensAndLayouts)
 }

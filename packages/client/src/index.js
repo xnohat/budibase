@@ -29,6 +29,7 @@ const loadBudibase = async () => {
     screen: window["##BUDIBASE_PREVIEW_SCREEN##"],
     selectedComponentId: window["##BUDIBASE_SELECTED_COMPONENT_ID##"],
     previewId: window["##BUDIBASE_PREVIEW_ID##"],
+    previewType: window["##BUDIBASE_PREVIEW_TYPE##"],
     theme: window["##BUDIBASE_PREVIEW_THEME##"],
     customTheme: window["##BUDIBASE_PREVIEW_CUSTOM_THEME##"],
     previewDevice: window["##BUDIBASE_PREVIEW_DEVICE##"],
