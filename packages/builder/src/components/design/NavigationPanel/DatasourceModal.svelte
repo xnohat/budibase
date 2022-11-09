@@ -21,7 +21,7 @@
     } else {
       let partialTemplates = getTemplates($store, $tables.list).reduce(
         (acc, template) => {
-          if (template.table === table._id) {
+          if (template.table === table.name) {
             template.datasource = datasource.name
             acc.push(template)
           }
@@ -103,7 +103,7 @@
                 </svg>
                 {table.name}
 
-                {#if selectedScreens.find(x => x.table === table._id)}
+                {#if selectedScreens.find(x => x.table === table.name)}
                   <span class="data-source-check">
                     <Icon size="S" name="CheckmarkCircle" />
                   </span>
@@ -135,7 +135,7 @@
                 </svg>
                 {datasource.entities[table_key].name}
 
-                {#if selectedScreens.find(x => x.table === datasource.entities[table_key]._id)}
+                {#if selectedScreens.find(x => x.table === datasource.entities[table_key].name)}
                   <span class="data-source-check">
                     <Icon size="S" name="CheckmarkCircle" />
                   </span>
