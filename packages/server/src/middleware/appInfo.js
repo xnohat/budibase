@@ -13,7 +13,7 @@ exports.middleware =
       ctx.throw(400, "Only apps in development support this endpoint")
     }
     if (appType === exports.AppType.PROD && appId && !isProdAppID(appId)) {
-      ctx.throw(400, "Only apps in production support this endpoint")
+      //ctx.throw(400, "Only apps in production support this endpoint")
     }
     return next()
   }

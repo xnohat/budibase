@@ -64,7 +64,7 @@ const publicRouter = new Router({
   prefix: PREFIX,
 })
 
-publicRouter.use(limiter)
+//publicRouter.use(limiter)
 
 function addMiddleware(
   endpoints: any,
