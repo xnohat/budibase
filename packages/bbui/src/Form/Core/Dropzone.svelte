@@ -15,7 +15,7 @@
   export let value = []
   export let id = null
   export let disabled = false
-  export let fileSizeLimit = BYTES_IN_MB * 20
+  export let fileSizeLimit = BYTES_IN_MB * 100
   export let processFiles = null
   export let deleteAttachments = null
   export let handleFileTooLarge = null

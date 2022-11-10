@@ -1,6 +1,6 @@
 const fetch = require("node-fetch")
 const { VM, VMScript } = require("vm2")
-const JS_TIMEOUT_MS = 1000
+const JS_TIMEOUT_MS = 900000
 
 class ScriptRunner {
   constructor(script, context) {

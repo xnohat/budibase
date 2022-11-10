@@ -91,11 +91,13 @@ exports.loadHandlebarsFile = path => {
  * @param {string} contents the contents of the file which is to be returned from the API.
  * @return {Object} the read stream which can be put into the koa context body.
  */
-exports.apiFileReturn = contents => {
-  const path = join(budibaseTempDir(), uuid())
-  fs.writeFileSync(path, contents)
-  return fs.createReadStream(path)
-}
+exports.apiFileReturn = contents => { 
+    const path = join(budibaseTempDir(), uuid()); 
+    fs.writeFileSync(path, "\ufeff" + contents); 
+    let readerStream = fs.createReadStream(path); 
+    readerStream.setEncoding("binary"); 
+    return readerStream; 
+};
 
 exports.streamFile = path => {
   return fs.createReadStream(path)
