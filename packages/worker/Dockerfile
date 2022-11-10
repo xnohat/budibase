@@ -10,8 +10,8 @@ WORKDIR /app
 # copy files and install dependencies
 COPY . ./
 # handle node-gyp
-RUN apk add --no-cache --virtual .gyp python3 make g++ \
-    && yarn && apk del .gyp
+RUN apk add --no-cache --virtual .gyp python3 make g++
+    #&& yarn && apk del .gyp
 RUN yarn global add pm2
 
 EXPOSE 4001
