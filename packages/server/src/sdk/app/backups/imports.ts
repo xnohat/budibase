@@ -159,6 +159,7 @@ export async function importApp(
 ) {
   let prodAppId = dbCore.getProdAppID(appId)
   let dbStream: any
+  let isHaveAttachments = false
   const isTar = template.file && template?.file?.type?.endsWith("gzip")
   const isDirectory =
     template.file && fs.lstatSync(template.file.path).isDirectory()
@@ -176,6 +177,11 @@ export async function importApp(
         }
         filename = join(prodAppId, filename)
         if (fs.lstatSync(path).isDirectory()) {
+          
+          if(filename == join(prodAppId,"attachments")) {
+            isHaveAttachments = true
+          }
+
           promises.push(
             uploadDirectory(ObjectStoreBuckets.APPS, path, filename)
           )
@@ -200,7 +206,10 @@ export async function importApp(
   if (!ok) {
     throw "Error loading database dump from template."
   }
-  await updateAttachmentColumns(prodAppId, db)
+  //Only update Attachment Columns to new App ID if the app Imported is a tarball and include attachments directory
+  if (template.file && (isTar || isDirectory) && isHaveAttachments) {
+    await updateAttachmentColumns(prodAppId, db)
+  }
   await updateAutomations(prodAppId, db)
   return ok
 }

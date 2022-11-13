@@ -21,6 +21,7 @@ type ExportOpts = {
   exportPath?: string
   tar?: boolean
   excludeRows?: boolean
+  excludeAttachments?: boolean
 }
 
 function tarFilesToTmp(tmpDir: string, files: string[]) {
@@ -87,7 +88,7 @@ export async function exportApp(appId: string, config?: ExportOpts) {
   const appPath = `${prodAppId}/`
   // export bucket contents
   let tmpPath
-  if (!env.isTest()) {
+  if (!env.isTest || (config?.excludeAttachments !== undefined && !config?.excludeAttachments)) {
     tmpPath = await retrieveDirectory(ObjectStoreBuckets.APPS, appPath)
   } else {
     tmpPath = createTempFolder(uuid())
@@ -163,9 +164,10 @@ export async function exportMultipleApps(
  * Streams a backup of the database state for an app
  * @param {string} appId The ID of the app which is to be backed up.
  * @param {boolean} excludeRows Flag to state whether the export should include data.
+ * @param {boolean} excludeAttachments Flag to state whether the export should include attachments.
  * @returns {*} a readable stream of the backup which is written in real time
  */
-export async function streamExportApp(appId: string, excludeRows: boolean) {
-  const tmpPath = await exportApp(appId, { excludeRows, tar: true })
+export async function streamExportApp(appId: string, excludeRows: boolean, excludeAttachments: boolean) {
+  const tmpPath = await exportApp(appId, { excludeRows, excludeAttachments, tar: true })
   return streamFile(tmpPath)
 }

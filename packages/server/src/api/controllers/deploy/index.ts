@@ -107,6 +107,7 @@ async function deployApp(deployment: any, userId: string) {
     const devAppId = getDevelopmentAppID(appId)
     const productionAppId = getProdAppID(appId)
 
+    
     // don't try this if feature isn't allowed, will error
     if (await backups.isEnabled()) {
       // trigger backup initially
@@ -115,10 +116,11 @@ async function deployApp(deployment: any, userId: string) {
         AppBackupTrigger.PUBLISH,
         {
           createdBy: userId,
-          name: 'Backup before publish',
+          name: 'Backup before publish', 
         }
       )
     }
+    
     const config: any = {
       source: devAppId,
       target: productionAppId,
