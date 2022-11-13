@@ -29,6 +29,9 @@
       asyncModal.show()
       publishModal.hide()
 
+      //Sync newest Production App to Development App before deploying
+      await API.syncApp($store.appId)
+      //Deploy
       published = await API.deployAppChanges()
 
       if (typeof onOk === "function") {
