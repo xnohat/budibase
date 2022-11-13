@@ -136,6 +136,12 @@
     exportModal.show()
   }
 
+  const exportAppDb = app => {
+    const id = isPublished ? app.prodId : app.devId
+    const appName = encodeURIComponent(app.name)
+    window.location = `/api/backups/exportdb?appId=${id}&appname=${appName}`
+  }
+
   const unpublishApp = app => {
     selectedApp = app
     unpublishModal.show()
@@ -274,6 +280,12 @@
               <span slot="control" class="app-overview-actions-icon">
                 <Icon hoverable name="More" />
               </span>
+              <MenuItem
+                on:click={() => exportAppDb(selectedApp)}
+                icon="DataDownload"
+              >
+                Export DB
+              </MenuItem>
               <MenuItem
                 on:click={() => exportApp({ published: false })}
                 icon="DownloadFromCloud"

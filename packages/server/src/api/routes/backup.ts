@@ -7,4 +7,6 @@ const router = new Router()
 
 router.get("/api/backups/export", authorized(BUILDER), controller.exportAppDump)
 
+router.get("/api/backups/exportdb", authorized(BUILDER), controller.exportAppDbDump)
+
 export default router
