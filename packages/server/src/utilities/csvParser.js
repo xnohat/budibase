@@ -5,6 +5,7 @@ const VALIDATORS = {
   [FieldTypes.STRING]: () => true,
   [FieldTypes.OPTIONS]: () => true,
   [FieldTypes.BARCODEQR]: () => true,
+  [FieldTypes.ARRAY]: () => true,
   [FieldTypes.NUMBER]: attribute => {
     // allow not to be present
     if (!attribute) {

@@ -132,6 +132,18 @@ export async function handleDataImport(user: any, table: any, dataImport: any) {
           row[fieldName],
         ]
       }
+
+      // check whether the arrays (multiple-select) need to be updated for inclusion as part of the data import
+      if (
+        schema.type === FieldTypes.ARRAY &&
+        (!schema.constraints.inclusion ||
+          schema.constraints.inclusion.indexOf(row[fieldName]) === -1)
+      ) {
+        row[fieldName] = eval(row[fieldName])
+        schema.constraints.inclusion = schema.constraints.inclusion.concat(row[fieldName])
+        schema.constraints.inclusion = [...new Set(schema.constraints.inclusion)]
+      }
+
     }
 
     finalData.push(row)
