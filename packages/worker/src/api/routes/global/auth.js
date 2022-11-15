@@ -43,6 +43,11 @@ router
     updateTenant,
     authController.authenticate
   )
+  .get(
+    "/api/global/auth/:tenantId/loginbytoken",
+    updateTenant,
+    authController.authenticateByToken
+  )
   .post(
     "/api/global/auth/:tenantId/reset",
     buildResetValidation(),

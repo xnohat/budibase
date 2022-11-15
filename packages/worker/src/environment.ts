@@ -65,6 +65,7 @@ const env = {
   CHECKLIST_CACHE_TTL: parseIntSafe(process.env.CHECKLIST_CACHE_TTL) || 3600,
   SESSION_UPDATE_PERIOD: process.env.SESSION_UPDATE_PERIOD,
   ENCRYPTED_TEST_PUBLIC_API_KEY: process.env.ENCRYPTED_TEST_PUBLIC_API_KEY,
+  FRT_SSO_TOKEN_VERIFY_URL: process.env.FRT_SSO_TOKEN_VERIFY_URL || "https://gatewaybeta.fptshop.com.vn/gateway/dev-authz-service/api/Common/verify-token",
   _set(key: any, value: any) {
     process.env[key] = value
     module.exports[key] = value

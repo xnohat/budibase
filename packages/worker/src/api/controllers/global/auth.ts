@@ -11,6 +11,13 @@ import { events, users as usersCore, context } from "@budibase/backend-core"
 import sdk from "../../../sdk"
 import { User } from "@budibase/types"
 
+const fetch = require('node-fetch');
+const { newid, compare } = require("@budibase/backend-core/utils")
+const { createASession } = require("@budibase/backend-core/sessions")
+const { openJwt, signJwt } = require("@budibase/backend-core/utils")
+const { users, UserStatus } = require("@budibase/backend-core")
+const { getTenantId } = require("@budibase/backend-core/tenancy")
+
 export const googleCallbackUrl = async (config: any) => {
   return ssoCallbackUrl(getGlobalDB(), config, "google")
 }
@@ -51,6 +58,85 @@ export const authenticate = async (ctx: any, next: any) => {
       ctx.status = 200
     }
   )(ctx, next)
+}
+
+/** 
+ * /api/global/auth/default/loginbytoken?redirect=%2Furlencoded%2F&token=xxx
+ */
+export const authenticateByToken = async (ctx: any, next: any) => {
+
+  const token = decodeURI(ctx.request.query.token)
+
+  const redirectURL = decodeURI(ctx.request.query.redirect)
+
+  const resp_token_check = await fetch(env.FRT_SSO_TOKEN_VERIFY_URL, {
+    method: 'GET',
+    headers: {
+        'Content-type': 'application/json',
+        'Authorization': `Bearer ${token}`, // notice the Bearer before your token
+    }
+  });
+
+  if(resp_token_check.status !== 200) {
+    //ctx.body = '{ error: "Token invalid" }'
+    ctx.body = '<h1 style="text-align: center;">Bạn chưa được phân quyền truy cập</h1>'
+    ctx.status = 401
+    return next
+  }
+
+  const tokenDataDecoded = await resp_token_check.json()
+
+  if(tokenDataDecoded?.error !== undefined) {
+    //ctx.body = '{ error: "Token invalid by SSO reject" }'
+    ctx.body = '<h1 style="text-align: center;">Bạn chưa được phân quyền truy cập do đăng nhập thất bại</h1>'
+    ctx.status = 401
+    return next
+  }
+
+  if(tokenDataDecoded?.data.email == null) {
+    //ctx.body = '{ error: "Token invalid by no email" }'
+    ctx.body = '<h1 style="text-align: center;">Bạn chưa được phân quyền truy cập do tài khoản chưa có email FPT</h1>'
+    ctx.status = 401
+    return next
+  }
+
+  const dbUser = await users.getGlobalUserByEmail(tokenDataDecoded?.data.email)
+  if (dbUser == null) {
+    //ctx.body = `{ error: "User ${tokenDataDecoded.data.email} not found" }`
+    ctx.body = `<h1 style="text-align: center;">Email ${tokenDataDecoded.data.email} của bạn chưa được phân quyền truy cập</h1>`
+    ctx.status = 401
+    return next
+  }
+  // check that the user is currently inactive, if this is the case throw invalid
+  if (dbUser.status === UserStatus.INACTIVE) {
+    //ctx.body = `{ error: "User ${tokenDataDecoded.data.email} Inactive" }`
+    ctx.body = `<h1 style="text-align: center;">Email ${tokenDataDecoded.data.email} của bạn chưa được phân quyền truy cập</h1>`
+    ctx.status = 401
+    return next
+  }
+
+  // authenticate
+  const sessionId = newid()
+  const tenantId = getTenantId()
+
+  await createASession(dbUser._id, { sessionId, tenantId })
+
+  dbUser.token = signJwt(
+    {
+      userId: dbUser._id,
+      sessionId,
+      tenantId,
+    }
+  )
+
+  await authInternal(ctx, dbUser)
+  await context.identity.doInUserContext(dbUser, async () => {
+    await events.auth.login("local")
+  })
+
+  //ctx.body = JSON.stringify(tokenDataDecoded?.data)
+  //ctx.status = 200
+  ctx.redirect(redirectURL)
 }
 
 export const setInitInfo = (ctx: any) => {

@@ -103,6 +103,18 @@ exports.openJwt = token => {
 }
 
 /**
+ * Encrypt JWT content.
+ * @return {string} encrypted JWT.
+ */
+ exports.signJwt = payload => {
+  if (!payload) {
+    return payload
+  }
+  return jwt.sign(payload, options.secretOrKey)
+}
+
+
+/**
  * Get a cookie from context, and decrypt if necessary.
  * @param {object} ctx The request which is to be manipulated.
  * @param {string} name The name of the cookie to get.
