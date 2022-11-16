@@ -63,8 +63,9 @@ const loadBudibase = async () => {
   window.registerCustomComponent =
     componentStore.actions.registerCustomComponent
 
+  //Disable Websocket for now because it's causing issues and not using in many cases
   // Initialise websocket
-  initWebsocket()
+  //initWebsocket()
 
   // Create app if one hasn't been created yet
   if (!app) {
