@@ -146,7 +146,6 @@
             {#if selectedUrl}
               <Link
                 target="_blank"
-                download={selectedImage.name}
                 href={selectedUrl}
               >
                 {selectedImage.name}

@@ -18,7 +18,6 @@
     <Link
       quiet
       target="_blank"
-      download={attachment.name}
       href={attachment.url}
       on:click={e => {
         e.stopPropagation()
@@ -33,7 +32,6 @@
       <Link
         quiet
         target="_blank"
-        download={attachment.name}
         href={attachment.url}
         on:click={e => {
           e.stopPropagation()
