@@ -1,5 +1,6 @@
 <script>
   import {
+    Icon,
     Modal,
     notifications,
     ModalContent,
@@ -72,6 +73,13 @@
     Update available
   </StatusLight>
 {/if}
+<Icon
+  name="DocumentRefresh"
+  hoverable
+  on:click={update}
+  tooltip="Force Update to Latest Client Library"
+  dataCy="updateclient-application-topnav"
+/>
 <Modal bind:this={updateModal}>
   <ModalContent
     title="App version"
