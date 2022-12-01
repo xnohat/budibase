@@ -190,7 +190,7 @@
     font-weight: 600;
     font-size: 12px;
     white-space: nowrap;
-    overflow: hidden;
+    overflow: initial;
     text-overflow: ellipsis;
     flex: 1 1 auto;
     color: var(--spectrum-global-color-gray-900);
