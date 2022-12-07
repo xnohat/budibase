@@ -1,7 +1,7 @@
 <script>
   import { writable, get } from "svelte/store"
   import { setContext, onMount } from "svelte"
-  import { Layout, Heading, Body } from "@budibase/bbui"
+  import { Layout, Heading, Body, Button } from "@budibase/bbui"
   import ErrorSVG from "@budibase/frontend-core/assets/error.svg"
   import { Constants, CookieUtils } from "@budibase/frontend-core"
   import Component from "./Component.svelte"
@@ -77,6 +77,15 @@
     }
   }
 
+  const logout = async () => {
+    try {
+      await authStore.actions.logOut()
+      window.location = "/builder/auth/login"
+    } catch (error) {
+      // Swallow error and do nothing
+    }
+  }
+
   // Load app config
   onMount(async () => {
     await initialise()
@@ -142,6 +151,20 @@
                           <Body size="S">
                             Ask your administrator to grant you access
                           </Body>
+                          <Heading size="M">
+                            {$authStore.email}
+                          </Heading>
+                          <Body size="S">
+                            Hệ thống đang ghi nhận đăng nhập bằng email ở trên, nếu đây không phải tài khoản của bạn, vui lòng bấm Log Out và truy cập lại bằng tài khoản của bạn.
+                          </Body>
+                          <Button
+                            dataCy="logout-btn"
+                            size="M"
+                            cta
+                            on:click={logout}
+                          >
+                            Log Out
+                          </Button>
                         </Layout>
                       </div>
                     {:else if !$screenStore.activeLayout}
