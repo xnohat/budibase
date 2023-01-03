@@ -16,6 +16,7 @@
     Table,
     Page,
   } from "@budibase/bbui"
+  import ConfirmDialog from "components/common/ConfirmDialog.svelte"
   import { backups, licensing, auth, admin } from "stores/portal"
   import { createPaginationStore } from "helpers/pagination"
   import AppSizeRenderer from "./AppSizeRenderer.svelte"
@@ -31,6 +32,8 @@
   import { onMount } from "svelte"
   export let app
 
+  let deleteMutipleBackups
+  let selectedRows = []
   let backupData = null
   let modal
   let pageInfo = createPaginationStore()
@@ -165,6 +168,16 @@
     }
   }
 
+  async function deleteMultipleBackups() {
+    selectedRows.forEach(async backup => {
+      await backups.deleteBackup({
+        appId: app.instance._id,
+        backupId: backup._id,
+      })
+      await fetchBackups(filterOpt, page)
+    })
+  }
+
   onMount(() => {
     fetchBackups(filterOpt, page, startDate, endDate)
     loaded = true
@@ -264,13 +277,26 @@
           <ActionButton on:click={modal.show} icon="SaveAsFloppy"
             >Create new backup</ActionButton
           >
+          <Button icon="Delete" size="s" primary quiet on:click={deleteMutipleBackups.show}>
+            Delete {selectedRows.length} selected backups
+          </Button>
+          <ConfirmDialog
+            bind:this={deleteMutipleBackups}
+            okText="Delete Backup"
+            onOk={deleteMultipleBackups}
+            title="Confirm Deletion"
+          >
+            Are you sure you wish to delete {selectedRows.length} selected backups
+            This action cannot be undone.
+          </ConfirmDialog>
         </div>
       </div>
       <div class="table">
         <Table
           {schema}
           disableSorting
-          allowSelectRows={false}
+          bind:selectedRows
+          allowSelectRows={true}
           allowEditColumns={false}
           allowEditRows={false}
           data={backupData}
