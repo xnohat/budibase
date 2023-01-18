@@ -17,7 +17,9 @@ export const ActionStepID = {
   EXECUTE_QUERY: "EXECUTE_QUERY",
   SERVER_LOG: "SERVER_LOG",
   DELAY: "DELAY",
+  STOP: "STOP",
   FILTER: "FILTER",
+  FILTERGOTO: "FILTERGOTO",
   QUERY_ROWS: "QUERY_ROWS",
   LOOP: "LOOP",
   // these used to be lowercase step IDs, maintain for backwards compat

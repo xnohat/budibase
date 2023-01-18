@@ -52,6 +52,9 @@ export interface AutomationStep {
       [key: string]: any
     }
   }
+  blockComments: any
+  blockLabel: any
+  stepnumber: any
 }
 
 export interface AutomationTrigger extends AutomationStep {

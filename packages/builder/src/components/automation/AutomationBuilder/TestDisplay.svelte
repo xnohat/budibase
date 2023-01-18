@@ -26,12 +26,36 @@
   $: {
     blocks = []
     if (automation) {
-      if (automation.definition.trigger) {
-        blocks.push(automation.definition.trigger)
+      // add trigger block to the blocks
+      if(testResults && testResults.trigger){
+        blocks.push({
+          icon: automation.definition.trigger.icon,
+          id: 0,
+          inputs: testResults.trigger.inputs,
+          name: automation.definition.trigger.name,
+          outputs: testResults.trigger.outputs,
+          stepId: testResults.trigger.stepId
+        })
       }
-      blocks = blocks
-        .concat(automation.definition.steps || [])
-        .filter(x => x.stepId !== ActionStepID.LOOP)
+
+      // add steps block to blocks
+      if(filteredResults){
+        let mapped_steps = filteredResults.map((step, index) => {
+          if(index > 0){ //skip trigger block
+            let matched_definition_step = automation.definition.steps.find(r => r.id == step.id)
+            return {
+              icon: matched_definition_step?.icon,
+              id: index + 1,
+              inputs: step.inputs,
+              name: matched_definition_step?.name,
+              outputs: step.outputs,
+              stepId: step.stepId
+            }
+          }
+        })
+        mapped_steps.shift() // remove trigger block from mapped_steps
+        blocks = blocks.concat(mapped_steps)
+      }
     } else if (filteredResults) {
       blocks = filteredResults || []
       // make sure there is an ID for each block being displayed

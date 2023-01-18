@@ -27,6 +27,8 @@ const { doInAppContext, getAppDB } = require("@budibase/backend-core/context")
 const { logAlertWithInfo, logWarn } = require("@budibase/backend-core/logging")
 const { processObject } = require("@budibase/string-templates")
 const FILTER_STEP_ID = actions.ACTION_DEFINITIONS.FILTER.stepId
+const FILTERGOTO_STEP_ID = actions.ACTION_DEFINITIONS.FILTERGOTO.stepId
+const STOP_STEP_ID = actions.ACTION_DEFINITIONS.STOP.stepId
 const LOOP_STEP_ID = actions.ACTION_DEFINITIONS.LOOP.stepId
 const CRON_STEP_ID = triggerDefs.CRON.stepId
 const STOPPED_STATUS = { success: true, status: AutomationStatus.STOPPED }
@@ -254,6 +256,8 @@ class Orchestrator {
     let loopSteps: LoopStep[] | undefined = []
     let metadata
     let wasLoopStep = false
+    let infinitiveGotoLoopProtectCounter = 0
+    let stepnumber = 0
     // check if this is a recurring automation,
     if (isProdAppID(this._appId) && isRecurring(automation)) {
       metadata = await this.getMetadata()
@@ -263,8 +267,9 @@ class Orchestrator {
       }
     }
 
-    for (let step of automation.definition.steps) {
+    for (let i = 0; i < automation.definition.steps.length; i++) {
       stepCount++
+      let step = automation.definition.steps[i]
       let input,
         iterations = 1,
         iterationCount = 0
@@ -404,6 +409,68 @@ class Orchestrator {
             emitter: this._emitter,
             context: this._context,
           })
+
+          // if STOP block causes us to stop execution don't break the loop, set a var
+          // so that we can finish iterating through the steps and record that it stopped
+          if (step.stepId === STOP_STEP_ID) {
+            stopped = true
+            this.updateExecutionOutput(step.id, step.stepId, step.inputs, {
+              ...outputs,
+              ...STOPPED_STATUS,
+            })
+            continue
+          }
+
+          // if Filter Goto step meet condition, we need to jump to the step specified
+          if (step.stepId === FILTERGOTO_STEP_ID && outputs.result == true) {
+            let maxGotoLoop = inputs.maxloop ? parseInt(inputs.maxloop) : 100
+            // if infinitive goto loop detected, stop the automation goto loop immediately
+            if(infinitiveGotoLoopProtectCounter >= maxGotoLoop) {
+              stopped = true
+              outputs.success = false
+              outputs.result = false
+              outputs.status = AutomationStatus.STOPPED
+              outputs.error = "Infinitive goto loop detected"
+              infinitiveGotoLoopProtectCounter = 0
+              this.updateExecutionOutput(step.id, step.stepId, step.inputs, {
+                ...outputs,
+              })
+              continue
+            }
+            infinitiveGotoLoopProtectCounter++
+
+            // if filter got true, we need to jump to the step specified
+            // and set i to that step-2 and set the stepCount to that step-1
+            if(isNaN(inputs.goto)){ // if goto is not a number, find matched stepnumber from step label
+              let matched_step_goto = automation.definition.steps.find((step, index) => {
+                if(step.inputs.blockLabel == inputs.goto){
+                  return step
+                }
+              })
+              // if goto step not found, stop the automation immediately
+              if(!matched_step_goto){
+                stopped = true
+                outputs.success = false
+                outputs.result = false
+                outputs.status = AutomationStatus.STOPPED
+                outputs.error = "Goto Step Label not found"
+                this.updateExecutionOutput(step.id, step.stepId, step.inputs, {
+                  ...outputs,
+                })
+                continue
+              }
+              stepnumber = parseInt(matched_step_goto.stepnumber)
+            }else{
+              stepnumber = parseInt(inputs.goto)
+            }
+            i = stepnumber - 1 - 1 //first -1 is step counter start from 0 but in frontend we count step from 1, second -1 because i++ at the end of the parent loop
+            stepCount = stepnumber - 1
+            stopped = false
+            this.updateExecutionOutput(step.id, step.stepId, step.inputs, {
+              ...outputs,
+            })
+            continue
+          }
 
           this._context.steps[stepCount] = outputs
           // if filter causes us to stop execution don't break the loop, set a var

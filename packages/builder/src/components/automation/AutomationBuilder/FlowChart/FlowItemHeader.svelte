@@ -41,6 +41,7 @@
       return { negative: true, message: "Error" }
     }
   }
+
 </script>
 
 <div class="blockSection">
@@ -74,7 +75,7 @@
         {#if isTrigger}
           <Body size="XS">When this happens:</Body>
         {:else}
-          <Body size="XS">Do this:</Body>
+          <Body size="XS">{#if block.stepnumber}Step {block.stepnumber} - {/if}Do this:</Body>
         {/if}
 
         <Detail size="S">{block?.name?.toUpperCase() || ""}</Detail>

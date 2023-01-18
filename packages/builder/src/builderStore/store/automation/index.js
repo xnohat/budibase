@@ -19,6 +19,38 @@ export const getAutomationStore = () => {
   return store
 }
 
+const addStepnumberToBlocks = (state) => {
+  //Add stepnumber to all blocks
+  let stepcounter = 1
+  state.selectedAutomation.automation.definition.steps = state.selectedAutomation.automation.definition.steps.map((step)=>{
+    if(step.stepId != "LOOP"){
+      step.stepnumber = stepcounter
+      stepcounter++
+    }
+    return step
+  })
+}
+
+const injectCommentsInputToBlocks = (state) => {
+  //Inject blockComments input to all blocks, just for old automations created before this feature
+  state.selectedAutomation.automation.definition.steps = state.selectedAutomation.automation.definition.steps.map((step)=>{
+    if(!step.schema.inputs.properties.blockComments){
+      step.schema.inputs.properties = { blockComments: {type: 'string', title: '//Comments for describing this block (default: blank)'}, ...step.schema.inputs.properties }
+    }
+    return step
+  })
+}
+
+const injectLabelInputToBlocks = (state) => {
+  //Inject blockLabel input to all blocks, just for old automations created before this feature
+  state.selectedAutomation.automation.definition.steps = state.selectedAutomation.automation.definition.steps.map((step)=>{
+    if(!step.schema.inputs.properties.blockLabel){
+      step.schema.inputs.properties = { blockLabel: {type: 'string', title: 'Step Label (default: blank)'}, ...step.schema.inputs.properties }
+    }
+    return step
+  })
+}
+
 const automationActions = store => ({
   definitions: async () => {
     const response = await API.getAutomationDefinitions()
@@ -49,6 +81,10 @@ const automationActions = store => ({
           automation => automation._id === selected._id
         )
         state.selectedAutomation = new Automation(selected[0])
+        //Add stepnumber to all blocks
+        addStepnumberToBlocks(state)
+        injectCommentsInputToBlocks(state)
+        injectLabelInputToBlocks(state)
       }
       return state
     })
@@ -129,6 +165,10 @@ const automationActions = store => ({
   select: automation => {
     store.update(state => {
       state.selectedAutomation = new Automation(cloneDeep(automation))
+      //Add stepnumber to all blocks
+      addStepnumberToBlocks(state)
+      injectCommentsInputToBlocks(state)
+      injectLabelInputToBlocks(state)
       state.selectedBlock = null
       return state
     })

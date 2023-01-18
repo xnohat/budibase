@@ -11,7 +11,9 @@ const slack = require("./steps/slack")
 const zapier = require("./steps/zapier")
 const integromat = require("./steps/integromat")
 let filter = require("./steps/filter")
+let filtergoto = require("./steps/filterGoto")
 let delay = require("./steps/delay")
+let stop = require("./steps/stop")
 let queryRow = require("./steps/queryRows")
 let loop = require("./steps/loop")
 const env = require("../environment")
@@ -26,7 +28,9 @@ const ACTION_IMPLS = {
   EXECUTE_QUERY: executeQuery.run,
   SERVER_LOG: serverLog.run,
   DELAY: delay.run,
+  STOP: stop.run,
   FILTER: filter.run,
+  FILTERGOTO: filtergoto.run,
   QUERY_ROWS: queryRow.run,
   LOOP: loop.run,
   // these used to be lowercase step IDs, maintain for backwards compat
@@ -45,7 +49,9 @@ const ACTION_DEFINITIONS = {
   EXECUTE_QUERY: executeQuery.definition,
   SERVER_LOG: serverLog.definition,
   DELAY: delay.definition,
+  STOP: stop.definition,
   FILTER: filter.definition,
+  FILTERGOTO: filtergoto.definition,
   QUERY_ROWS: queryRow.definition,
   LOOP: loop.definition,
   // these used to be lowercase step IDs, maintain for backwards compat
