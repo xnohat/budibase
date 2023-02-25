@@ -4,6 +4,7 @@ const updateRow = require("./steps/updateRow")
 const deleteRow = require("./steps/deleteRow")
 const executeScript = require("./steps/executeScript")
 const executeQuery = require("./steps/executeQuery")
+const executeAutomation = require("./steps/executeAutomation")
 const outgoingWebhook = require("./steps/outgoingWebhook")
 const serverLog = require("./steps/serverLog")
 const discord = require("./steps/discord")
@@ -26,6 +27,7 @@ const ACTION_IMPLS = {
   OUTGOING_WEBHOOK: outgoingWebhook.run,
   EXECUTE_SCRIPT: executeScript.run,
   EXECUTE_QUERY: executeQuery.run,
+  EXECUTE_AUTOMATION: executeAutomation.run,
   SERVER_LOG: serverLog.run,
   DELAY: delay.run,
   STOP: stop.run,
@@ -47,6 +49,7 @@ const ACTION_DEFINITIONS = {
   OUTGOING_WEBHOOK: outgoingWebhook.definition,
   EXECUTE_SCRIPT: executeScript.definition,
   EXECUTE_QUERY: executeQuery.definition,
+  EXECUTE_AUTOMATION: executeAutomation.definition,
   SERVER_LOG: serverLog.definition,
   DELAY: delay.definition,
   STOP: stop.definition,

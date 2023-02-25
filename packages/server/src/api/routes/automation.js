@@ -81,5 +81,6 @@ router
     authorized(PermissionTypes.AUTOMATION, PermissionLevels.EXECUTE),
     controller.test
   )
+  .get("/api/automations/export/:id", authorized(BUILDER), controller.exportAutomation)
 
 module.exports = router

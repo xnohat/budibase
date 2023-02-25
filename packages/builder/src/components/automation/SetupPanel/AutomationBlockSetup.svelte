@@ -13,6 +13,7 @@
     Modal,
     Detail,
     notifications,
+    Toggle,
   } from "@budibase/bbui"
   import CreateWebhookModal from "components/automation/Shared/CreateWebhookModal.svelte"
 
@@ -24,6 +25,8 @@
   import CodeEditorModal from "./CodeEditorModal.svelte"
   import QuerySelector from "./QuerySelector.svelte"
   import QueryParamSelector from "./QueryParamSelector.svelte"
+  import AutomationSelector from "./AutomationSelector.svelte"
+  import AutomationParamSelector from "./AutomationParamSelector.svelte"
   import CronBuilder from "./CronBuilder.svelte"
   import Editor from "components/integration/QueryEditor.svelte"
   import ModalBindableInput from "components/common/bindings/ModalBindableInput.svelte"
@@ -279,6 +282,22 @@
           value={inputData[key]}
           {bindings}
         />
+      {:else if value.customType === "automation"}
+      <AutomationSelector
+        on:change={e => onChange(e, key)}
+        value={inputData[key]}
+      />
+      {:else if value.customType === "automationParams"}
+      <AutomationParamSelector
+        on:change={e => onChange(e, key)}
+        value={inputData[key]}
+        {bindings}
+      />
+      {:else if value.customType === "getresulttoggle"}
+        <Toggle
+          on:change={e => onChange(e, key)}
+          value={inputData[key]}
+       />
       {:else if value.customType === "table"}
         <TableSelector
           {isTrigger}

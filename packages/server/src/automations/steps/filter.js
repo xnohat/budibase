@@ -25,7 +25,7 @@ exports.definition = {
   internal: true,
   stepId: "FILTER",
   inputs: {
-    condition: FilterConditions.EQUALS,
+    condition: FilterConditions.EQUAL,
   },
   schema: {
     inputs: {

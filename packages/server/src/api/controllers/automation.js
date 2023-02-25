@@ -283,3 +283,11 @@ exports.test = async function (ctx) {
   ctx.body = response
   await events.automation.tested(automation)
 }
+
+exports.exportAutomation = async function (ctx) {
+  const db = getAppDB()
+  let automation = await db.get(ctx.params.id)
+  const backupIdentifier = `automation-${automation.name}-export-${new Date().getTime()}.json`
+  ctx.attachment(backupIdentifier)
+  ctx.body = automation
+}
