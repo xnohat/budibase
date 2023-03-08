@@ -37,12 +37,17 @@
       notifications.error("Error saving layout")
     }
   }
+
+  const exportLayout = async () => {
+    window.location = `/api/layouts/export/${layout._id}`
+  }
 </script>
 
 <ActionMenu>
   <div slot="control" class="icon">
     <Icon size="S" hoverable name="MoreSmallList" />
   </div>
+  <MenuItem icon="Export" on:click={exportLayout}>Export</MenuItem>
   <MenuItem icon="Edit" on:click={editLayoutNameModal.show}>Edit</MenuItem>
   <MenuItem icon="Delete" on:click={confirmDeleteDialog.show}>Delete</MenuItem>
 </ActionMenu>

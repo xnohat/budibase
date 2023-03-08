@@ -14,5 +14,6 @@ router
     authorized(BUILDER),
     controller.destroy
   )
+  .get("/api/screens/export/:id", authorized(BUILDER), controller.exportScreen)
 
 module.exports = router

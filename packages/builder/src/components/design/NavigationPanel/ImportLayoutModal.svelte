@@ -1,0 +1,152 @@
+<script>
+    import { goto } from "@roxi/routify"
+    import { store } from "builderStore"
+    import { database } from "stores/backend"
+    import { notifications } from "@budibase/bbui"
+    import { Input, ModalContent, Modal, Body } from "@budibase/bbui"
+    import { makeComponentUnique } from "builderStore/componentUtils"
+
+    const BYTES_IN_MB = 1000000
+    const FILE_SIZE_LIMIT = BYTES_IN_MB * 5
+
+    let modal
+    let layoutFromFileString = undefined
+    let hasValidated = false
+
+    export let name
+    //export let layout
+    export let error = ""
+    export let files = []
+    export let dataImport = {}
+    export let onCancel = undefined
+
+    export const show = () => {
+      name = ""
+      modal.show()
+    }
+    export const hide = () => {
+      name = ""
+      files = []
+      modal.hide()
+    }
+
+    async function importLayout() {
+        try {
+            dataImport.name = name
+            delete dataImport._id
+            delete dataImport._rev
+            makeComponentUnique(dataImport.props)
+
+            await store.actions.layouts.save(dataImport)
+            notifications.success("Layout import successfully")
+            hide()
+            //location.reload()
+
+        } catch (error) {
+        notifications.error("Failed to import layout")
+        }
+    }
+
+    async function handleFile(evt) {
+        const fileArray = Array.from(evt.target.files)
+        if (fileArray.some(file => file.size >= FILE_SIZE_LIMIT)) {
+            notifications.error(
+                `Files cannot exceed ${
+                FILE_SIZE_LIMIT / BYTES_IN_MB
+                }MB. Please try again with smaller files.`
+            )
+            return
+        }
+
+        // Read uploaded JSON file as plain text
+        let reader = new FileReader()
+        reader.addEventListener("load", function (e) {
+            layoutFromFileString = e.target.result
+            files = fileArray
+            JSONValidate(layoutFromFileString)
+        })
+        reader.readAsText(fileArray[0])
+    }
+
+    function JSONValidate(str) {
+        try {
+            dataImport = JSON.parse(str);
+        } catch (e) {
+            notifications.error("Invalid JSON format of Layout file, please check the file and try again.")
+        }
+        hasValidated = true
+    }
+
+    function checkValid(evt) {
+    name = evt.target.value
+    if (!name) {
+      error = "Name is required"
+      return
+    }
+    error = ""
+  }
+
+</script>
+
+<Modal bind:this={modal} on:hide={onCancel}>
+    <ModalContent
+    title="Import Layout"
+    confirmText="Import Layout"
+    onConfirm={importLayout}
+    disabled={!files[0]}
+    >
+        <Body>
+            Please upload the layout file that was exported to get
+            started
+        </Body>
+        <Input bind:value={name} label="Name" on:input={checkValid} {error} />
+        <div class="dropzone">
+            <input id="file-upload" accept=".json" type="file" on:change={handleFile} />
+            <label for="file-upload" class:uploaded={files[0]}>
+            {#if files[0]}{files[0].name}{:else}Upload{/if}
+            </label>
+        </div>
+    </ModalContent>
+</Modal>
+
+<style>
+    .dropzone {
+        text-align: center;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        border-radius: 10px;
+        transition: all 0.3s;
+    }
+
+    input[type="file"] {
+        display: none;
+    }
+
+    label {
+        font-family: var(--font-sans);
+        cursor: pointer;
+        font-weight: 600;
+        box-sizing: border-box;
+        overflow: hidden;
+        border-radius: var(--border-radius-s);
+        color: var(--ink);
+        padding: var(--spacing-m) var(--spacing-l);
+        transition: all 0.2s ease 0s;
+        display: inline-flex;
+        text-rendering: optimizeLegibility;
+        min-width: auto;
+        outline: none;
+        font-feature-settings: "case" 1, "rlig" 1, "calt" 0;
+        -webkit-box-align: center;
+        user-select: none;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        background-color: var(--grey-2);
+        font-size: var(--font-size-xs);
+        line-height: normal;
+        border: var(--border-transparent);
+    }
+</style>

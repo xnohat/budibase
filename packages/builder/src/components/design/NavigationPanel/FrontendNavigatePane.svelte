@@ -11,6 +11,8 @@
   import ComponentNavigationTree from "components/design/NavigationPanel/ComponentNavigationTree/index.svelte"
   import Layout from "components/design/NavigationPanel/Layout.svelte"
   import NewLayoutModal from "components/design/NavigationPanel/NewLayoutModal.svelte"
+  import ImportScreenModal from "components/design/NavigationPanel/ImportScreenModal.svelte"
+  import ImportLayoutModal from "components/design/NavigationPanel/ImportLayoutModal.svelte"
   import {
     Icon,
     Modal,
@@ -25,6 +27,9 @@
   export let showModal
 
   let scrollRef
+
+  let importScreenDialog
+  let importLayoutDialog
 
   const scrollTo = bounds => {
     if (!bounds) {
@@ -149,6 +154,7 @@
         <div class="nav-items-container" bind:this={scrollRef}>
           <ComponentNavigationTree />
         </div>
+        <ImportScreenModal bind:this={importScreenDialog} />
       </div>
     </Tab>
     <Tab title="Layouts">
@@ -166,9 +172,16 @@
         <Modal bind:this={newLayoutModal}>
           <NewLayoutModal />
         </Modal>
+        <ImportLayoutModal bind:this={importLayoutDialog} />
       </div>
     </Tab>
   </Tabs>
+  <div class="import-button">
+    <Icon 
+      hoverable
+      name="BoxImport"
+      on:click={selected === "Layouts" ? importLayoutDialog.show() : importScreenDialog.show() } />
+  </div>
   <div class="add-button">
     <Icon
       hoverable
@@ -197,6 +210,12 @@
     position: absolute;
     top: var(--spacing-l);
     right: var(--spacing-xl);
+  }
+
+  .import-button {
+    position: absolute;
+    top: var(--spacing-l);
+    right: 3.5rem;
   }
 
   .tab-content-padding {

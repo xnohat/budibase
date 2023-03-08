@@ -26,6 +26,15 @@ exports.fetch = async (ctx: any) => {
   )
 }
 
+exports.exportScreen = async (ctx: any) => {
+  const db = context.getAppDB()
+  const screen = await db.get(ctx.params.id)
+  const screen_route = screen.routing.route.replace(/\/|:/g, "_")
+  const backupIdentifier = `screen-${screen_route}-export-${new Date().getTime()}.json`
+  ctx.attachment(backupIdentifier)
+  ctx.body = screen
+}
+
 exports.save = async (ctx: any) => {
   const db = context.getAppDB()
   let screen = ctx.request.body

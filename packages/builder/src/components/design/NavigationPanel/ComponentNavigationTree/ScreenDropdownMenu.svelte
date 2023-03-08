@@ -62,12 +62,17 @@
       notifications.error("Error saving component")
     }
   }
+
+  const exportScreen = async () => {
+    window.location = `/api/screens/export/${screen._id}`
+  }
 </script>
 
 <ActionMenu>
   <div slot="control" class="icon">
     <Icon size="S" hoverable name="MoreSmallList" />
   </div>
+  <MenuItem icon="Export" on:click={exportScreen}>Export</MenuItem>
   <MenuItem icon="Duplicate" on:click={duplicateScreen}>Duplicate</MenuItem>
   <MenuItem
     icon="ShowOneLayer"

@@ -24,6 +24,15 @@ exports.save = async function (ctx) {
   ctx.status = 200
 }
 
+exports.exportLayout = async function (ctx) {
+  const db = getAppDB()
+  const layout = await db.get(ctx.params.id)
+  const layout_name = layout.name.replace(/\s/g, "_")
+  const backupIdentifier = `layout-${layout_name}-export-${new Date().getTime()}.json`
+  ctx.attachment(backupIdentifier)
+  ctx.body = layout
+}
+
 exports.destroy = async function (ctx) {
   const db = getAppDB()
   const layoutId = ctx.params.layoutId,

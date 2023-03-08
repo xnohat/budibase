@@ -12,5 +12,6 @@ router
     authorized(BUILDER),
     controller.destroy
   )
+  .get("/api/layouts/export/:id", authorized(BUILDER), controller.exportLayout)
 
 module.exports = router
