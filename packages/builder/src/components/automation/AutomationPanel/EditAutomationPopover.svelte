@@ -29,12 +29,18 @@
       notifications.error("Error duplicating automation")
     }
   }
+
+  async function exportAutomation() {
+    window.location = `/api/automations/export/${automation._id}`
+  }
+
 </script>
 
 <ActionMenu>
   <div slot="control" class="icon">
     <Icon s hoverable name="MoreSmallList" />
   </div>
+  <MenuItem icon="Export" on:click={exportAutomation}>Export</MenuItem>
   <MenuItem icon="Duplicate" on:click={duplicateAutomation}>Duplicate</MenuItem>
   <MenuItem icon="Edit" on:click={updateAutomationDialog.show}>Edit</MenuItem>
   <MenuItem icon="Delete" on:click={confirmDeleteDialog.show}>Delete</MenuItem>
