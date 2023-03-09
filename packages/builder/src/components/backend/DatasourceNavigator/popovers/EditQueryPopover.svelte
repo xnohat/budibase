@@ -36,12 +36,18 @@
       notifications.error("Error duplicating query")
     }
   }
+
+  async function exportQuery() {
+    window.location = `/api/queries/export/${query._id}`
+  }
+
 </script>
 
 <ActionMenu>
   <div slot="control" class="icon">
     <Icon size="S" hoverable name="MoreSmallList" />
   </div>
+  <MenuItem icon="Export" on:click={exportQuery}>Export</MenuItem>
   <MenuItem icon="Delete" on:click={confirmDeleteDialog.show}>Delete</MenuItem>
   <MenuItem icon="Duplicate" on:click={duplicateQuery}>Duplicate</MenuItem>
 </ActionMenu>

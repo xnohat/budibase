@@ -60,5 +60,6 @@ router
     authorized(BUILDER),
     queryController.destroy
   )
+  .get("/api/queries/export/:id", authorized(BUILDER), queryController.exportQuery)
 
 module.exports = router

@@ -5,11 +5,13 @@
   import { ActionMenu, MenuItem, Icon } from "@budibase/bbui"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
   import UpdateDatasourceModal from "components/backend/DatasourceNavigator/modals/UpdateDatasourceModal.svelte"
+  import ImportQueryModal from "components/backend/DatasourceNavigator/modals/ImportQueryModal.svelte"
 
   export let datasource
 
   let confirmDeleteDialog
   let updateDatasourceDialog
+  let importQueryDialog
 
   async function deleteDatasource() {
     try {
@@ -42,6 +44,7 @@
   <div slot="control" class="icon">
     <Icon size="S" hoverable name="MoreSmallList" />
   </div>
+  <MenuItem icon="Import" on:click={importQueryDialog.show}>Import</MenuItem>
   <MenuItem icon="Edit" on:click={updateDatasourceDialog.show}>Edit</MenuItem>
   <MenuItem icon="Delete" on:click={confirmDeleteDialog.show}>Delete</MenuItem>
 </ActionMenu>
@@ -57,6 +60,8 @@
   This action cannot be undone.
 </ConfirmDialog>
 <UpdateDatasourceModal {datasource} bind:this={updateDatasourceDialog} />
+
+<ImportQueryModal {datasource} bind:this={importQueryDialog} />
 
 <style>
   div.icon {

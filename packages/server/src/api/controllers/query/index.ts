@@ -298,3 +298,12 @@ export async function destroy(ctx: any) {
   ctx.status = 200
   await events.query.deleted(datasource, query)
 }
+
+export async function exportQuery(ctx: any) {
+  const db = getAppDB()
+  let query = await db.get(ctx.params.id)
+  let query_name = query.name.replace(/(\:\/\/|[\s.#?:/]+)/g, "_")
+  const backupIdentifier = `query-${query_name}-export-${new Date().getTime()}.json`
+  ctx.attachment(backupIdentifier)
+  ctx.body = query
+}

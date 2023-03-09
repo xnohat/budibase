@@ -108,6 +108,15 @@ export function createQueriesStore() {
         return state
       })
     },
+    import: async query => {
+      const newQuery = { ...query }
+      const datasourceId = query.datasourceId
+
+      delete newQuery._id
+      delete newQuery._rev
+
+      return actions.save(datasourceId, newQuery)
+    },
     duplicate: async query => {
       let list = get(store).list
       const newQuery = { ...query }
