@@ -13,5 +13,6 @@ router
     controller.deploymentProgress
   )
   .post("/api/deploy", authorized(BUILDER), controller.deployApp)
+  .get("/api/deploy/cache/clear/:applicationId", authorized(BUILDER), controller.forceClearAppCache)
 
 module.exports = router

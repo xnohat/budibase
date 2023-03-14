@@ -100,6 +100,18 @@
     }
   }
 
+  const clearappcache = async () => {
+    try {
+      let appcachecleared = await API.forceClearAppCache(selectedApp.prodId)
+      console.log('Cleared App Cache: ',appcachecleared)
+      notifications.success(
+        `App cache cleared`
+      )
+    } catch (err) {
+      notifications.error(`Error when clear app cache: ${err}`)
+    }
+  }
+
   onMount(async () => {
     if (!$apps.length) {
       await apps.load()
@@ -108,6 +120,14 @@
   })
 </script>
 
+
+<Icon
+  name="DataRefresh"
+  hoverable
+  on:click={clearappcache}
+  tooltip="Force Clear App Cache"
+  dataCy="clearappcache-application-topnav"
+/>
 <div class="deployment-top-nav">
   {#if isPublished}
     <div class="publish-popover">

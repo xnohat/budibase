@@ -21,6 +21,7 @@ import bullboard from "./automations/bullboard"
 import * as pro from "@budibase/pro"
 import api from "./api"
 import sdk from "./sdk"
+import * as listeners from "./listeners"
 const pino = require("koa-pino-logger")
 
 let STARTUP_RAN = false
@@ -136,3 +137,5 @@ export async function startup(app?: any, server?: any) {
     await initRoutes(app)
   }
 }
+
+listeners.init()

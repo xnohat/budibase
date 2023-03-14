@@ -39,6 +39,7 @@ export async function fetchSelf(ctx: any) {
     }
     // remove the full roles structure
     delete user.roles
+    /*
     try {
       const userTable = await db.get(InternalTables.USER_METADATA)
       // specifically needs to make sure is enriched
@@ -64,6 +65,7 @@ export async function fetchSelf(ctx: any) {
       ctx.body = response
     }
   } else {
+  */
     ctx.body = user
   }
 

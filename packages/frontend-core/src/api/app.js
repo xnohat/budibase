@@ -31,6 +31,15 @@ export const buildAppEndpoints = API => ({
   },
 
   /**
+   * Force clear app cache.
+   */
+  forceClearAppCache: async appId => {
+    return await API.get({
+      url: `/api/deploy/cache/clear/${appId}`,
+    })
+  },
+
+  /**
    * Reverts an app to a previous version.
    * @param appId the app ID to revert
    */

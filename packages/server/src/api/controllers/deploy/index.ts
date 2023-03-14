@@ -20,6 +20,7 @@ import {
 import { events } from "@budibase/backend-core"
 import { backups } from "@budibase/pro"
 import { AppBackupTrigger } from "@budibase/types"
+import { cache } from "@budibase/backend-core/cache" //generic cache
 
 // the max time we can wait for an invalidation to complete before considering it failed
 const MAX_PENDING_TIME_MS = 30 * 60000
@@ -198,6 +199,10 @@ export async function deploymentProgress(ctx: any) {
   }
 }
 
+export async function forceClearAppCache(ctx: any) {
+  ctx.body = await clearAppCache(ctx.params.applicationId)
+}
+
 const isFirstDeploy = async () => {
   try {
     const db = getProdAppDB()
@@ -211,6 +216,29 @@ const isFirstDeploy = async () => {
   return false
 }
 
+const clearAppCache = async (applicationId?: any) => {
+  const appId = applicationId ? applicationId : getAppId()
+  const devAppId = getDevelopmentAppID(appId)
+  const productionAppId = getProdAppID(appId)
+
+  let prod_keys = await cache.keys("*:app_"+productionAppId+":*")
+  prod_keys.forEach(async (key: any) => {
+    await cache.delete(key.replace('data_cache-','').replace(':default',''))
+  })
+
+  let dev_keys = await cache.keys("*:app_"+devAppId+":*")
+  dev_keys.forEach(async (key: any) => {
+    await cache.delete(key.replace('data_cache-','').replace(':default',''))
+  })
+
+  return {
+    success: true,
+    message: "App cache cleared",
+    prod_keys: prod_keys,
+    dev_keys: dev_keys,
+  }
+}
+
 const _deployApp = async function (ctx: any) {
   let deployment = new Deployment()
   console.log("Deployment object created")
@@ -222,6 +250,9 @@ const _deployApp = async function (ctx: any) {
   console.log("Deploying app...")
 
   let app = await deployApp(deployment, ctx.user._id)
+
+  let cache_cleared = await clearAppCache()
+  console.log("App cache cleared", cache_cleared)
 
   await events.app.published(app)
   ctx.body = deployment

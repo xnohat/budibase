@@ -2,6 +2,7 @@ import { quotas } from "@budibase/pro"
 import internal from "./internal"
 import external from "./external"
 import { isExternalTable } from "../../../integrations/utils"
+import { cache } from "@budibase/backend-core/cache" //generic cache
 
 function pickApi(tableId: any) {
   if (isExternalTable(tableId)) {
@@ -116,9 +117,19 @@ export async function destroy(ctx: any) {
 export async function search(ctx: any) {
   const tableId = getTableId(ctx)
   ctx.status = 200
-  ctx.body = await quotas.addQuery(() => pickApi(tableId).search(ctx), {
+  /* ctx.body = await quotas.addQuery(() => pickApi(tableId).search(ctx), {
     datasourceId: tableId,
-  })
+  }) */
+
+  const search_result = await cache.withCache(
+    "row_api_search_:app_"+ctx.appId+":table_"+tableId+":payload_"+Buffer.from(JSON.stringify(ctx.request.body)).toString('base64'),
+    3600, //seconds
+    async () => {
+      return await quotas.addQuery(() => pickApi(tableId).search(ctx), {
+        datasourceId: tableId,
+      })
+    })
+  ctx.body = search_result
 }
 
 export async function validate(ctx: any) {

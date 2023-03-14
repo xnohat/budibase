@@ -87,11 +87,14 @@ exports.destroy = async function (ctx) {
 }
 
 exports.bulkImport = async function (ctx) {
+  const appId = ctx.appId
   const tableId = ctx.params.tableId
-  await pickApi({ tableId }).bulkImport(ctx)
+  const importedTable = await pickApi({ tableId }).bulkImport(ctx)
   // right now we don't trigger anything for bulk import because it
   // can only be done in the builder, but in the future we may need to
   // think about events for bulk items
+  ctx.eventEmitter &&
+    ctx.eventEmitter.emitTable(`table:save`, appId, importedTable)
   ctx.status = 200
   ctx.body = { message: `Bulk rows created.` }
 }
