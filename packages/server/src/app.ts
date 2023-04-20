@@ -50,6 +50,9 @@ app.use(
     // @ts-ignore
     enableTypes: ["json", "form", "text"],
     parsedMethods: ["POST", "PUT", "PATCH", "DELETE"],
+    formidable: {
+      maxFileSize: "1000mb"
+    }
   })
 )
 
