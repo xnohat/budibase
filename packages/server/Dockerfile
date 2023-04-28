@@ -31,6 +31,8 @@ RUN yarn global add pm2
 RUN apt-get install unzip libaio1
 RUN /bin/bash -e scripts/integrations/oracle/instantclient/linux/x86-64/install.sh 
 
+RUN apt-get install -y wget curl nano watch
+
 EXPOSE 4001
 
 # have to add node environment production after install
