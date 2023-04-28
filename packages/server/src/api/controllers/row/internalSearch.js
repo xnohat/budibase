@@ -501,7 +501,7 @@ exports.fullSearch = async (query, params) => {
   if (limit == null || isNaN(limit) || limit < 0) {
     limit = 1000
   }
-  params.limit = Math.min(limit, 1000)
+  params.limit = Math.min(limit, 10000)
   const rows = await recursiveSearch(query, params)
   return { rows }
 }
