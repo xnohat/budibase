@@ -565,12 +565,19 @@ const getRoleBindings = () => {
   actionId
 ) => {
   let bindings = []
+  let eventSetting = null
 
   // Check if any context bindings are provided by the component for this
   // setting
   const component = findComponent(asset.props, componentId)
   const settings = getComponentSettings(component?._component)
-  const eventSetting = settings.find(setting => setting.key === settingKey)
+  //Set eventSetting for On Screen Load event
+  if(settingKey == "onLoad"){
+    eventSetting = {type: 'event', label: 'On screen load', key: 'onLoad'}
+  }else{
+    //others event: On Click, On Change ...
+    eventSetting = settings.find(setting => setting.key === settingKey)
+  }
   if (!eventSetting) {
     return bindings
   }
