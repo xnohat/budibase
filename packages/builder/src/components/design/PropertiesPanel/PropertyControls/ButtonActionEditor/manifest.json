@@ -1,6 +1,10 @@
 {
   "actions": [
     {
+      "name": "Debug",
+      "component": "Debug"
+    },
+    {
       "name": "Save Row",
       "component": "SaveRow",
       "context": [
@@ -93,6 +97,14 @@
       "name": "Continue if / Stop if",
       "component": "ContinueIf",
       "dependsOnFeature": "continueIfAction"
+    },
+    {
+      "name": "Goto if",
+      "component": "GotoIf"
+    },
+    {
+      "name": "Stop",
+      "component": "Stop"
     },
     {
       "name": "Show Notification",

@@ -16,6 +16,8 @@ import { ActionTypes } from "constants"
 import { enrichDataBindings } from "./enrichDataBinding"
 import { Helpers } from "@budibase/bbui"
 
+let debug = false
+
 const saveRowHandler = async (action, context) => {
   const { fields, providerId, tableId } = action.parameters
   let payload
@@ -304,6 +306,54 @@ const continueIfHandler = action => {
   }
 }
 
+const gotoIfHandler = action => {
+  let { value, operator, referenceValue } = action.parameters
+  if (!operator) {
+    return
+  }
+
+  // coerce types so that we can use them
+  if (!isNaN(value) && !isNaN(referenceValue)) {
+    value = parseFloat(value)
+    referenceValue = parseFloat(referenceValue)
+  } else if (!isNaN(Date.parse(value)) && !isNaN(Date.parse(referenceValue))) {
+    value = Date.parse(value)
+    referenceValue = Date.parse(referenceValue)
+  }
+
+  if (typeof referenceValue !== "object" && typeof value !== "object") {
+    switch (operator) {
+      case "equal":
+        return value === referenceValue
+      case "notEqual":
+        return value !== referenceValue
+      case "greaterThan":
+        return value > referenceValue
+      case "lessThan":
+        return value < referenceValue
+      case "greaterThanOrEqual":
+        return value >= referenceValue
+      case "lessThanOrEqual":
+        return value <= referenceValue
+      default:
+        return false
+    }
+  } else {
+    return false
+  }
+}
+
+const stopHandler = action => {
+  return false
+}
+
+const debugHandler = action => {
+  debug = JSON.parse(action.parameters.debug.toLowerCase()) //set global to true/false
+  console.log("Step: 1")
+  console.log("Debug:", action.parameters.debug)
+  return true
+}
+
 const showNotificationHandler = action => {
   const { message, type, autoDismiss } = action.parameters
   if (!message || !type) {
@@ -330,6 +380,9 @@ const handlerMap = {
   ["Upload File to S3"]: s3UploadHandler,
   ["Export Data"]: exportDataHandler,
   ["Continue if / Stop if"]: continueIfHandler,
+  ["Goto if"]: gotoIfHandler,
+  ["Stop"]: stopHandler,
+  ["Debug"]: debugHandler,
   ["Show Notification"]: showNotificationHandler,
 }
 
@@ -343,9 +396,10 @@ const confirmTextMap = {
 /**
  * Parses an array of actions and returns a function which will execute the
  * actions in the current context.
+ * init_index is used to skip the first few actions in the array, default is 0
  * A handler returning `false` is a flag to stop execution of handlers
  */
-export const enrichButtonActions = (actions, context) => {
+export const enrichButtonActions = (actions, context, init_index=0) => {
   // Prevent button actions in the builder preview
   if (!actions?.length || get(builderStore).inBuilder) {
     return null
@@ -362,8 +416,9 @@ export const enrichButtonActions = (actions, context) => {
     // Inherit any previous button context which may have come from actions
     // before a confirmable action since this breaks the chain.
     let buttonContext = context.actions || []
-
-    for (let i = 0; i < handlers.length; i++) {
+    let stepnumber = 0
+    let infinitiveGotoLoopProtectCounter = 0
+    for (let i = init_index; i < handlers.length; i++) {
       try {
         // Skip any non-existent action definitions
         if (!handlers[i]) {
@@ -386,6 +441,8 @@ export const enrichButtonActions = (actions, context) => {
         // If this action is confirmable, show confirmation and await a
         // callback to execute further actions
         if (action.parameters?.confirm) {
+          debug && console.log("Step:", i+1)
+          debug && console.log("Running action:", action)
           return new Promise(resolve => {
             const defaultText = confirmTextMap[action["##eventHandlerType"]]
             const confirmText = action.parameters?.confirmText || defaultText
@@ -403,8 +460,9 @@ export const enrichButtonActions = (actions, context) => {
 
                   // Enrich and call the next button action
                   const next = enrichButtonActions(
-                    actions.slice(i + 1),
-                    newContext
+                    actions,//actions.slice(i + 1),
+                    newContext,
+                    i + 1
                   )
                   resolve(await next())
                 } else {
@@ -420,8 +478,29 @@ export const enrichButtonActions = (actions, context) => {
 
         // For non-confirmable actions, execute the handler immediately
         else {
+          debug && console.log("Step:", i+1)
+          debug && console.log("Running action:", action)
           const result = await callback()
-          if (result === false) {
+          debug && console.log("result:", result)
+
+          //Goto step if result is true
+          if(action["##eventHandlerType"] === "Goto if" && result === true) {
+            let maxGotoLoop = action.parameters.maxloop ? parseInt(action.parameters.maxloop) : 100
+            // if infinitive goto loop detected, stop the goto loop immediately
+            if(infinitiveGotoLoopProtectCounter >= maxGotoLoop) {
+              buttonContext.push(result)
+              continue
+            }
+            infinitiveGotoLoopProtectCounter++
+
+            stepnumber = parseInt(action.parameters.gotostep)
+            i = stepnumber - 1 - 1 // -1 for i++ and -1 for goto step
+            buttonContext.push(result)
+            continue //jump now by skip current iteration
+          }
+
+          // Stop executing further actions on false
+          if (result === false && action["##eventHandlerType"] !== "Goto if") {
             return
           } else {
             buttonContext.push(result)
