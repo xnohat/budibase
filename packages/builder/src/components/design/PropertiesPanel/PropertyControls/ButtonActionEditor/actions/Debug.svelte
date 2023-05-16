@@ -23,7 +23,7 @@
 
 <div class="root">
   <Body size="S">
-    Enable/Disable debug mode, print actions executions debug information 
+    Debug mode, print actions executions debug information 
     to browser console. This action must place at top of actions list.
   </Body>
   <Select
