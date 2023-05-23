@@ -64,6 +64,7 @@ export async function buildSchema(ctx: BBContext) {
 }
 
 export async function trigger(ctx: BBContext) {
+  const isApi = ctx.query && ctx.query.api === 'true'
   const prodAppId = dbCore.getProdAppID(ctx.params.instance)
   await context.updateAppId(prodAppId)
   try {
@@ -74,18 +75,39 @@ export async function trigger(ctx: BBContext) {
       validate(ctx.request.body, webhook.bodySchema)
     }
     const target = await db.get(webhook.action.target)
-    if (webhook.action.type === WebhookActionType.AUTOMATION) {
-      // trigger with both the pure request and then expand it
-      // incase the user has produced a schema to bind to
-      await triggers.externalTrigger(target, {
-        body: ctx.request.body,
-        ...ctx.request.body,
-        appId: prodAppId,
-      })
-    }
-    ctx.status = 200
-    ctx.body = {
-      message: "Webhook trigger fired successfully",
+    if(isApi) { //Webhook used as an automation API, response result from automation
+      if (webhook.action.type === WebhookActionType.AUTOMATION) {
+        // trigger with both the pure request and then expand it
+        // incase the user has produced a schema to bind to
+        const response = await triggers.externalTrigger(
+          target,
+          {
+            api: true,
+            body: ctx.request.body,
+            ...ctx.request.body,
+            appId: prodAppId,
+          },
+          { getResponses: true }
+        )
+        ctx.status = 200
+        //return the last automation step executed output as api return
+        ctx.body = response.steps.filter((step: any) => step.outputs.status !== "stopped").slice(-1)[0].outputs
+      }
+    }else{  //Webhook used as a normal automation trigger, just trigger automation and response 200
+      if (webhook.action.type === WebhookActionType.AUTOMATION) {
+        // trigger with both the pure request and then expand it
+        // incase the user has produced a schema to bind to
+        await triggers.externalTrigger(target, {
+          api: false,
+          body: ctx.request.body,
+          ...ctx.request.body,
+          appId: prodAppId,
+        })
+      }
+      ctx.status = 200
+      ctx.body = {
+        message: "Webhook trigger fired successfully",
+      }
     }
   } catch (err: any) {
     if (err.status === 404) {

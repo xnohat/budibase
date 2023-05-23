@@ -24,6 +24,10 @@ exports.definition = {
     },
     outputs: {
       properties: {
+        api: {
+          type: "boolean",
+          description: "True when Webhook used as API, called with ...?api=true",
+        },
         body: {
           type: "object",
           description: "Body of the request which hit the webhook",
