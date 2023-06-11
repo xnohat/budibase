@@ -30,11 +30,13 @@
   export let allowBindings = true
   export let allOr = false
   export let fillWidth = false
+  let tempFilters = []
 
   $: dispatch("change", filters)
   $: enrichedSchemaFields = getFields(schemaFields || [])
   $: fieldOptions = enrichedSchemaFields.map(field => field.name) || []
   $: valueTypeOptions = allowBindings ? ["Value", "Binding"] : ["Value"]
+  $: tempFilters = filters.filter(x => x.operator !== "allOr") //remove allOr operator from filters and use to display filter fields
 
   let behaviourValue
   const behaviourOptions = [
@@ -109,6 +111,15 @@
     }
   }
 
+  const onBehaviourChange = e => {
+    allOr = e.detail === "or" //set allOr to true if behaviour is "or" else false
+    if(allOr){ //add allOr operator from filters
+      filters.push({ operator: "allOr" })
+    }else{ //remove allOr operator from filters
+      filters = filters.filter(x => x.operator !== "allOr")
+    }
+  }
+
   const onFieldChange = filter => {
     santizeTypes(filter)
     santizeOperator(filter)
@@ -130,7 +141,10 @@
   }
 
   onMount(() => {
-    behaviourValue = allOr ? "or" : "and"
+    //behaviourValue = allOr ? "or" : "and"
+    allOr = filters.find(x => x.operator === "allOr") ? true : false //set allOr to true if behaviour is "or" else false
+    behaviourValue = filters.find(x => x.operator === "allOr") ?  "or" : "and"
+    tempFilters = filters.filter(x => x.operator !== "allOr") //remove allOr operator from filters and use to display filter fields
   })
 </script>
 
@@ -153,7 +167,7 @@
             options={behaviourOptions}
             getOptionLabel={opt => opt.label}
             getOptionValue={opt => opt.value}
-            on:change={e => (allOr = e.detail === "or")}
+            on:change={e => onBehaviourChange(e)}
             placeholder={null}
           />
         </div>
@@ -162,7 +176,7 @@
             <Label>Filters</Label>
           </div>
           <div class="fields">
-            {#each filters as filter, idx}
+            {#each tempFilters as filter, idx}
               <Select
                 bind:value={filter.field}
                 options={fieldOptions}
