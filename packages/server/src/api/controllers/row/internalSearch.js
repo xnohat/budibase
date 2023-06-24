@@ -287,7 +287,8 @@ class QueryBuilder {
           lowercase: true,
           type: "fuzzy",
         })
-        return `${key}:${value}~`
+        //return `${key}:${value}~`
+        return `${key}:/.*${value}.*/`
       })
     }
     if (this.query.equal) {
