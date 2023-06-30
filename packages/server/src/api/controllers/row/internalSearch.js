@@ -14,6 +14,7 @@ class QueryBuilder {
       allOr: false,
       string: {},
       fuzzy: {},
+      regex: {},
       range: {},
       equal: {},
       notEqual: {},
@@ -87,6 +88,11 @@ class QueryBuilder {
 
   addFuzzy(key, fuzzy) {
     this.query.fuzzy[key] = fuzzy
+    return this
+  }
+
+  addRegex(key, regex) {
+    this.query.regex[key] = regex
     return this
   }
 
@@ -289,6 +295,14 @@ class QueryBuilder {
         })
         //return `${key}:${value}~`
         return `${key}:/.*${value}.*/`
+      })
+    }
+    if (this.query.regex) {
+      build(this.query.regex, (key, value) => {
+        if (!value) {
+          return null
+        }
+        return `${key}:${value}`
       })
     }
     if (this.query.equal) {

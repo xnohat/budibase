@@ -26,6 +26,10 @@ export const OperatorOptions = {
     value: "fuzzy",
     label: "Like",
   },
+  Regex: {
+    value: "regex",
+    label: "Regex",
+  },
   MoreThan: {
     value: "rangeLow",
     label: "More than",

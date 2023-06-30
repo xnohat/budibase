@@ -14,6 +14,7 @@ export const getValidOperatorsForType = type => {
     Op.NotEquals,
     Op.StartsWith,
     Op.Like,
+    Op.Regex,
     Op.Empty,
     Op.NotEmpty,
     Op.In,
@@ -53,6 +54,7 @@ export const getValidOperatorsForType = type => {
 export const NoEmptyFilterStrings = [
   OperatorOptions.StartsWith.value,
   OperatorOptions.Like.value,
+  OperatorOptions.Regex.value,
   OperatorOptions.Equals.value,
   OperatorOptions.NotEquals.value,
   OperatorOptions.Contains.value,
@@ -101,6 +103,7 @@ export const buildLuceneQuery = filter => {
   let query = {
     string: {},
     fuzzy: {},
+    regex: {},
     range: {},
     equal: {},
     notEqual: {},
@@ -230,8 +233,14 @@ export const runLuceneQuery = (docs, query) => {
   // Process a fuzzy match (treat the same as starts with when running locally)
   const fuzzyMatch = match("fuzzy", (docValue, testValue) => {
     return (
-      !docValue || !docValue?.toLowerCase().startsWith(testValue?.toLowerCase())
+      //!docValue || !docValue?.toLowerCase().startsWith(testValue?.toLowerCase())
+      !docValue || !docValue?.toLowerCase().match('/.*'+testValue?.toLowerCase()+'.*/')
     )
+  })
+
+  // Process a regex match (fails if the value does not match the regex)
+  const regexMatch = match("regex", (docValue, testValue) => {
+    return !docValue || !docValue?.match(new RegExp(testValue))
   })
 
   // Process a range match
@@ -292,6 +301,7 @@ export const runLuceneQuery = (docs, query) => {
     return (
       stringMatch(doc) &&
       fuzzyMatch(doc) &&
+      regexMatch(doc) &&
       rangeMatch(doc) &&
       equalMatch(doc) &&
       notEqualMatch(doc) &&
