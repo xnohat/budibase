@@ -28,7 +28,7 @@
     Object.keys(viewTable.schema).filter(fieldName => {
       const field = viewTable.schema[fieldName]
       return (
-        field.type !== FIELDS.FORMULA.type &&
+        //field.type !== FIELDS.FORMULA.type &&
         field.type !== FIELDS.LINK.type &&
         (view.calculation === "count" ||
           // don't want to perform calculations based on auto ID
