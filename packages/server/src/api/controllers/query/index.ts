@@ -106,9 +106,15 @@ export async function find(ctx: any) {
   const db = getAppDB()
   const query = enrichQueries(await db.get(ctx.params.queryId))
   // remove properties that could be dangerous in real app
+  let pagination = query.fields?.pagination //backup pagination before properties are removed
   if (isProdAppID(ctx.appId)) {
     delete query.fields
     delete query.parameters
+  }
+  // restore pagination
+  if (pagination) {
+    query.fields = query.fields || {}
+    query.fields.pagination = pagination
   }
   ctx.body = query
 }
