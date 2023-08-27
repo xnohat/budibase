@@ -68,6 +68,10 @@
           title: "Theming",
           href: "/builder/portal/settings/theming",
         },
+        {
+          title: "Branding",
+          href: "/builder/portal/settings/branding",
+        },
       ])
 
       if (!$adminStore.cloud) {

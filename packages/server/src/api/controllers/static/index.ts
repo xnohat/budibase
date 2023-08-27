@@ -18,6 +18,7 @@ const { upload, deleteFiles } = require("../../../utilities/fileSystem")
 const { attachmentsRelativeURL } = require("../../../utilities")
 const { DocumentType } = require("../../../db/utils")
 const { getAppDB, getAppId } = require("@budibase/backend-core/context")
+const { objectStore ,configs } = require("@budibase/backend-core")
 const { setCookie, clearCookie } = require("@budibase/backend-core/utils")
 const AWS = require("aws-sdk")
 const fs = require("fs")
@@ -106,14 +107,20 @@ export const serveApp = async function (ctx: any) {
   const db = getAppDB({ skip_setup: true })
   const appInfo = await db.get(DocumentType.APP_METADATA)
   let appId = getAppId()
+  //Public Settings
+  const { config } = await configs.getSettingsConfigDoc()
 
   if (!env.isJest()) {
     const App = require("./templates/BudibaseApp.svelte").default
     const plugins = enrichPluginURLs(appInfo.usedPlugins)
     const { head, html, css } = App.render({
-      metaImage:
-        "https://res.cloudinary.com/daog6scxm/image/upload/v1666109324/meta-images/budibase-meta-image_uukc1m.png",
-      title: appInfo.name,
+      title: config?.comboMetaTitleEnabled ? config?.metaTitle : appInfo.name+' '+config?.metaTitleSuffix,
+        metaTitle: config?.comboMetaTitleEnabled ? config?.metaTitle : appInfo.name+' '+config?.metaTitleSuffix,
+        metaImage: (!!config?.metaImageUrl) ? config?.platformUrl+config?.metaImageUrl :"https://res.cloudinary.com/daog6scxm/image/upload/v1666109324/meta-images/budibase-meta-image_uukc1m.png",
+        metaDescription: config?.metaDescription || "",
+        favicon:
+          config.faviconUrl ||
+          "https://i.imgur.com/Xhdt1YP.png",
       production: env.isProd(),
       appId,
       clientLibPath: clientLibraryPath(appId, appInfo.version, ctx),

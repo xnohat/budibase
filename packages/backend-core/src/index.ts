@@ -1,5 +1,6 @@
 import errors from "./errors"
 const errorClasses = errors.errors
+import * as configs from "./configs"
 import * as events from "./events"
 import * as migrations from "./migrations"
 import * as users from "./users"
@@ -61,6 +62,7 @@ const core = {
   logging,
   roles,
   plugins,
+  configs,
   ...pino,
   ...errorClasses,
   middleware,

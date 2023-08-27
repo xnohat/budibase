@@ -66,6 +66,13 @@ const env = {
   PLUGIN_BUCKET_NAME:
     process.env.PLUGIN_BUCKET_NAME || DefaultBucketName.PLUGINS,
   USE_COUCH: process.env.USE_COUCH || true,
+  // smtp
+  SMTP_FALLBACK_ENABLED: process.env.SMTP_FALLBACK_ENABLED,
+  SMTP_USER: process.env.SMTP_USER,
+  SMTP_PASSWORD: process.env.SMTP_PASSWORD,
+  SMTP_HOST: process.env.SMTP_HOST,
+  SMTP_PORT: parseInt(process.env.SMTP_PORT || ""),
+  SMTP_FROM_ADDRESS: process.env.SMTP_FROM_ADDRESS,
   DISABLE_DEVELOPER_LICENSE: process.env.DISABLE_DEVELOPER_LICENSE,
   DEFAULT_LICENSE: process.env.DEFAULT_LICENSE,
   SERVICE: process.env.SERVICE || "budibase",

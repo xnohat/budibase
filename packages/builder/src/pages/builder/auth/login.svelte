@@ -62,7 +62,7 @@
     <Layout>
       <Layout noPadding justifyItems="center">
         <img alt="logo" src={$organisation.logoUrl || Logo} />
-        <Heading>Sign in to {company}</Heading>
+        <Heading>{$organisation.loginHeading || "Log in to Budibase"}</Heading>
       </Layout>
       {#if loaded}
         <GoogleButton />
@@ -81,7 +81,7 @@
       </Layout>
       <Layout gap="XS" noPadding>
         <Button cta disabled={!username && !password} on:click={login}
-          >Sign in to {company}</Button
+          >{$organisation.loginButton || `Sign in to ${company}`}</Button
         >
         <ActionButton quiet on:click={() => $goto("./forgot")}>
           Forgot password?

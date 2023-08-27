@@ -2,6 +2,8 @@
   export let title = ""
   export let favicon = ""
   export let metaImage = ""
+  export let metaTitle = ""
+  export let metaDescription = ""
   export let url = ""
 
   export let clientLibPath
@@ -14,18 +16,32 @@
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
   />
+
+  <!-- Primary Meta Tags -->
+  <meta name="title" content={metaTitle} />
+  <meta name="description" content={metaDescription} />
+  
   <!-- Opengraph Meta Tags -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:site" content="@budibase" />
-  <meta name="twitter:image" content={metaImage} />
-  <meta name="twitter:title" content="{title} - built with Budibase" />
-  <meta property="og:site_name" content="Budibase" />
-  <meta property="og:title" content="{title} - built with Budibase" />
+  <meta property="og:site_name" content="Website" />
+  <meta property="og:title" content="{title}" />
+  <meta property="og:description" content={metaDescription} />
   <meta property="og:type" content="website" />
   <meta property="og:image" content={metaImage} />
 
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:site" content="@website" />
+  <meta property="twitter:image" content={metaImage} />
+  <meta property="twitter:image:alt" content="{title}" />
+  <meta property="twitter:title" content="{title}" />
+  <meta property="twitter:description" content={metaDescription} />
+
   <title>{title}</title>
-  <link rel="icon" type="image/png" href={favicon} />
+  {#if favicon !== ""}
+    <link rel="icon" type="image/png" href={favicon} />
+  {:else}
+    <link rel="icon" type="image/png" href="https://i.imgur.com/Xhdt1YP.png" />
+  {/if}
   <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
   <link rel="preconnect" href="https://fonts.gstatic.com" />
   <link

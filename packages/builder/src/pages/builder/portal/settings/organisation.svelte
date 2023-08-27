@@ -30,6 +30,9 @@
     logo: $organisation.logoUrl
       ? { url: $organisation.logoUrl, type: "image", name: "Logo" }
       : null,
+    favicon: $organisation.faviconUrl
+      ? { url: $organisation.faviconUrl, type: "image", name: "Favicon" }
+      : null,
   })
   let loading = false
 
@@ -43,6 +46,16 @@
     }
   }
 
+  async function uploadFavicon(file) {
+    try {
+      let data = new FormData()
+      data.append("file", file)
+      await API.uploadFavicon(data)
+    } catch (error) {
+      notifications.error("Error uploading favicon")
+    }
+  }
+
   async function saveConfig() {
     loading = true
 
@@ -50,6 +63,11 @@
       // Upload logo if required
       if ($values.logo && !$values.logo.url) {
         await uploadLogo($values.logo)
+        await organisation.init()
+      }
+      // Upload favicon if required
+      if ($values.favicon && !$values.favicon.url) {
+        await uploadFavicon($values.favicon)
         await organisation.init()
       }
 
@@ -62,6 +80,10 @@
       // Remove logo if required
       if (!$values.logo) {
         config.logoUrl = ""
+      }
+      // Remove favicon if required
+      if (!$values.favicon) {
+        config.faviconUrl = ""
       }
 
       // Update settings
@@ -86,7 +108,7 @@
     <Divider />
     <Layout gap="XS" noPadding>
       <Heading size="S">Information</Heading>
-      <Body size="S">Here you can update your logo and organization name.</Body>
+      <Body size="S">Here you can update your logo, favicon and organization name.</Body>
     </Layout>
     <div class="fields">
       <div class="field">
@@ -103,6 +125,19 @@
                 $values.logo = null
               } else {
                 $values.logo = e.detail[0]
+              }
+            }}
+          />
+        </div>
+        <Label size="L">Favicon</Label>
+        <div class="file">
+          <Dropzone
+            value={[$values.favicon]}
+            on:change={e => {
+              if (!e.detail || e.detail.length === 0) {
+                $values.favicon = null
+              } else {
+                $values.favicon = e.detail[0]
               }
             }}
           />
