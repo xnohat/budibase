@@ -14,11 +14,11 @@ import firebase from "./firebase"
 import redis from "./redis"
 import snowflake from "./snowflake"
 import oracle from "./oracle"
-import { getPlugins } from "../api/controllers/plugin"
 import { SourceName, Integration, PluginType } from "@budibase/types"
 import { getDatasourcePlugin } from "../utilities/fileSystem"
 const environment = require("../environment")
 const { cloneDeep } = require("lodash")
+import sdk from "../sdk"
 
 const DEFINITIONS: { [key: string]: Integration } = {
   [SourceName.POSTGRES]: postgres.schema,
@@ -53,7 +53,6 @@ const INTEGRATIONS: { [key: string]: any } = {
   [SourceName.FIRESTORE]: firebase.integration,
   [SourceName.GOOGLE_SHEETS]: googlesheets.integration,
   [SourceName.REDIS]: redis.integration,
-  [SourceName.FIRESTORE]: firebase.integration,
   [SourceName.SNOWFLAKE]: snowflake.integration,
 }
 
@@ -71,7 +70,7 @@ module.exports = {
   getDefinitions: async () => {
     const pluginSchemas: { [key: string]: Integration } = {}
     if (environment.SELF_HOSTED) {
-      const plugins = await getPlugins(PluginType.DATASOURCE)
+      const plugins = await sdk.plugins.fetch(PluginType.DATASOURCE)
       // extract the actual schema from each custom
       for (let plugin of plugins) {
         const sourceId = plugin.name
@@ -94,7 +93,7 @@ module.exports = {
       return INTEGRATIONS[integration]
     }
     if (environment.SELF_HOSTED) {
-      const plugins = await getPlugins(PluginType.DATASOURCE)
+      const plugins = await sdk.plugins.fetch(PluginType.DATASOURCE)
       for (let plugin of plugins) {
         if (plugin.name === integration) {
           // need to use commonJS require due to its dynamic runtime nature

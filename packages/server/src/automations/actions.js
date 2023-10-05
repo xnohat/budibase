@@ -18,6 +18,9 @@ let stop = require("./steps/stop")
 let queryRow = require("./steps/queryRows")
 let loop = require("./steps/loop")
 const env = require("../environment")
+const { PluginType } = require("@budibase/types")
+const sdk = require("../sdk")
+const { getAutomationPlugin } = require("../utilities/fileSystem")
 
 const ACTION_IMPLS = {
   SEND_EMAIL_SMTP: sendSmtpEmail.run,
@@ -41,7 +44,7 @@ const ACTION_IMPLS = {
   zapier: zapier.run,
   integromat: integromat.run,
 }
-const ACTION_DEFINITIONS = {
+const BUILTIN_ACTION_DEFINITIONS = {
   SEND_EMAIL_SMTP: sendSmtpEmail.definition,
   CREATE_ROW: createRow.definition,
   UPDATE_ROW: updateRow.definition,
@@ -70,14 +73,50 @@ const ACTION_DEFINITIONS = {
 if (env.SELF_HOSTED) {
   const bash = require("./steps/bash")
   ACTION_IMPLS["EXECUTE_BASH"] = bash.run
-  ACTION_DEFINITIONS["EXECUTE_BASH"] = bash.definition
+  // @ts-ignore
+  BUILTIN_ACTION_DEFINITIONS["EXECUTE_BASH"] = bash.definition
+}
+
+exports.getActionDefinitions = async function () {
+  const actionDefinitions = BUILTIN_ACTION_DEFINITIONS
+  if (env.SELF_HOSTED) {
+    const plugins = await sdk.plugins.fetch(PluginType.AUTOMATION)
+    for (let plugin of plugins) {
+      const schema = plugin.schema.schema
+      actionDefinitions[schema.stepId] = {
+        ...schema,
+        custom: true,
+      }
+    }
+  }
+  return actionDefinitions
 }
 
 /* istanbul ignore next */
-exports.getAction = async function (actionName) {
-  if (ACTION_IMPLS[actionName] != null) {
-    return ACTION_IMPLS[actionName]
+exports.getAction = async function (stepId) {
+  if (ACTION_IMPLS[stepId] != null) {
+    return ACTION_IMPLS[stepId]
+  }
+  // must be a plugin
+  if (env.SELF_HOSTED) {
+    const plugins = await sdk.plugins.fetch(PluginType.AUTOMATION)
+    /**
+     * @type {import('@budibase/types').Plugin}
+     */
+    const found = plugins.find(plugin => plugin.schema.schema.stepId === stepId)
+    if (!found) {
+      throw new Error(`Unable to find action implementation for "${stepId}"`)
+    }
+    //! Based on old code, this should be the correct way to get the action
+    //! don't pass `found` (Plugin) object, passing 3 args instead
+    return (
+      await getAutomationPlugin(
+        found.name,
+        found.jsUrl,
+        found.schema?.hash
+      )
+    ).action
   }
 }
 
-exports.ACTION_DEFINITIONS = ACTION_DEFINITIONS
+exports.BUILTIN_ACTION_DEFINITIONS = BUILTIN_ACTION_DEFINITIONS

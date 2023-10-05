@@ -3,6 +3,11 @@ const tableController = require("../../api/controllers/table")
 const { FieldTypes } = require("../../constants")
 const { buildCtx } = require("./utils")
 const automationUtils = require("../automationUtils")
+import {
+  AutomationCustomIOType,
+  AutomationIOType,
+  AutomationStepType,
+} from "@budibase/types"
 
 const SortOrders = {
   ASCENDING: "ascending",
@@ -29,7 +34,7 @@ exports.definition = {
   icon: "Search",
   name: "Query rows",
   tagline: "Query rows from {{inputs.enriched.table.name}} table",
-  type: "ACTION",
+  type: AutomationStepType.ACTION,
   stepId: "QUERY_ROWS",
   internal: true,
   inputs: {},
@@ -37,35 +42,35 @@ exports.definition = {
     inputs: {
       properties: {
         tableId: {
-          type: "string",
-          customType: "table",
+          type: AutomationIOType.STRING,
+          customType: AutomationCustomIOType.TABLE,
           title: "Table",
         },
         filters: {
-          type: "object",
-          customType: "filters",
+          type: AutomationIOType.OBJECT,
+          customType: AutomationCustomIOType.FILTERS,
           title: "Filtering",
         },
         sortColumn: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Sort Column",
-          customType: "column",
+          customType: AutomationCustomIOType.COLUMN,
         },
         sortOrder: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Sort Order",
           enum: Object.values(SortOrders),
           pretty: Object.values(SortOrdersPretty),
         },
         limit: {
-          type: "number",
+          type: AutomationIOType.NUMBER,
           title: "Limit",
-          customType: "queryLimit",
+          customType: AutomationCustomIOType.QUERY_LIMIT,
         },
         onEmptyFilter: {
           pretty: Object.values(EmptyFilterOptionsPretty),
           enum: Object.values(EmptyFilterOptions),
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "When Filter Empty",
         },
       },
@@ -74,12 +79,12 @@ exports.definition = {
     outputs: {
       properties: {
         rows: {
-          type: "array",
-          customType: "rows",
+          type: AutomationIOType.ARRAY,
+          customType: AutomationCustomIOType.ROWS,
           description: "The rows that were found",
         },
         success: {
-          type: "boolean",
+          type: AutomationIOType.BOOLEAN,
           description: "Whether the query was successful",
         },
       },

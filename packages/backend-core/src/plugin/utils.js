@@ -2,6 +2,10 @@ const {
   DatasourceFieldType,
   QueryType,
   PluginType,
+  AutomationIOType,
+  AutomationCustomIOType,
+  AutomationStepType,
+  AutomationStepIdArray,
 } = require("@budibase/types")
 const joi = require("joi")
 
@@ -23,7 +27,7 @@ function runJoi(validator, schema) {
 
 function validateComponent(schema) {
   const validator = joi.object({
-    type: joi.string().allow("component").required(),
+    type: joi.string().allow(PluginType.COMPONENT).required(),
     metadata: joi.object().unknown(true).required(),
     hash: joi.string().optional(),
     version: joi.string().optional(),
@@ -56,7 +60,7 @@ function validateDatasource(schema) {
     .required()
 
   const validator = joi.object({
-    type: joi.string().allow("datasource").required(),
+    type: joi.string().allow(PluginType.DATASOURCE).required(),
     metadata: joi.object().unknown(true).required(),
     hash: joi.string().optional(),
     version: joi.string().optional(),
@@ -85,6 +89,54 @@ function validateDatasource(schema) {
   runJoi(validator, schema)
 }
 
+function validateAutomation(schema) {
+  const basePropsValidator = joi.object().pattern(joi.string(), {
+    type: joi
+      .string()
+      .allow(...Object.values(AutomationIOType))
+      .required(),
+    customType: joi.string().allow(...Object.values(AutomationCustomIOType)),
+    title: joi.string(),
+    description: joi.string(),
+    enum: joi.array().items(joi.string()),
+    pretty: joi.array().items(joi.string()),
+  })
+  const stepSchemaValidator = joi
+    .object({
+      properties: basePropsValidator,
+      required: joi.array().items(joi.string()),
+    })
+    .concat(basePropsValidator)
+    .required()
+  const validator = joi.object({
+    type: joi.string().allow(PluginType.AUTOMATION).required(),
+    metadata: joi.object().unknown(true).required(),
+    hash: joi.string().optional(),
+    version: joi.string().optional(),
+    schema: joi.object({
+      name: joi.string().required(),
+      tagline: joi.string().required(),
+      icon: joi.string().required(),
+      description: joi.string().required(),
+      type: joi
+        .string()
+        .allow(AutomationStepType.ACTION, AutomationStepType.LOGIC)
+        .required(),
+      stepId: joi
+        .string()
+        .disallow(...AutomationStepIdArray)
+        .required(),
+      inputs: joi.object().optional(),
+      schema: joi
+        .object({
+          inputs: stepSchemaValidator,
+          outputs: stepSchemaValidator,
+        })
+        .required(),
+    }),
+  })
+  runJoi(validator, schema)
+}
 exports.validate = schema => {
   switch (schema?.type) {
     case PluginType.COMPONENT:
@@ -92,6 +144,9 @@ exports.validate = schema => {
       break
     case PluginType.DATASOURCE:
       validateDatasource(schema)
+      break
+    case PluginType.AUTOMATION:
+      validateAutomation(schema)
       break
     default:
       throw new Error(`Unknown plugin type - check schema.json: ${schema.type}`)

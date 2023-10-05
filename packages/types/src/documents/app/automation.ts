@@ -1,5 +1,31 @@
 import { Document } from "../document"
 
+export enum AutomationIOType {
+  OBJECT = "object",
+  STRING = "string",
+  BOOLEAN = "boolean",
+  NUMBER = "number",
+  ARRAY = "array",
+}
+
+export enum AutomationCustomIOType {
+  TABLE = "table",
+  ROW = "row",
+  ROWS = "rows",
+  WIDE = "wide",
+  QUERY = "query",
+  QUERY_PARAMS = "queryParams",
+  QUERY_LIMIT = "queryLimit",
+  LOOP_OPTION = "loopOption",
+  ITEM = "item",
+  CODE = "code",
+  FILTERS = "filters",
+  COLUMN = "column",
+  TRIGGER_SCHEMA = "triggerSchema",
+  CRON = "cron",
+  WEBHOOK_URL = "webhookUrl",
+}
+
 export enum AutomationTriggerStepId {
   ROW_SAVED = "ROW_SAVED",
   ROW_UPDATED = "ROW_UPDATED",
@@ -7,6 +33,12 @@ export enum AutomationTriggerStepId {
   WEBHOOK = "WEBHOOK",
   APP = "APP",
   CRON = "CRON",
+}
+
+export enum AutomationStepType {
+  LOGIC = "LOGIC",
+  ACTION = "ACTION",
+  TRIGGER = "TRIGGER",
 }
 
 export enum AutomationActionStepId {
@@ -29,32 +61,78 @@ export enum AutomationActionStepId {
   integromat = "integromat",
 }
 
+export const AutomationStepIdArray = [
+  ...Object.values(AutomationActionStepId),
+  ...Object.values(AutomationTriggerStepId),
+]
+
 export interface Automation extends Document {
   definition: {
     steps: AutomationStep[]
     trigger: AutomationTrigger
   }
+  screenId?: string
+  uiTree?: any
   appId: string
   name: string
+  internal?: boolean
+  type?: string
 }
 
-export interface AutomationStep {
-  id: string
+interface BaseIOStructure {
+  type?: AutomationIOType
+  customType?: AutomationCustomIOType
+  title?: string
+  description?: string
+  enum?: string[]
+  pretty?: string[]
+  properties?: {
+    [key: string]: BaseIOStructure
+  }
+  required?: string[]
+}
+
+interface InputOutputBlock {
+  properties: {
+    [key: string]: BaseIOStructure
+  }
+  required?: string[]
+}
+
+export interface AutomationStepSchema {
+  name: string
+  tagline: string
+  icon: string
+  description: string
+  type: AutomationStepType
+  internal?: boolean
+  deprecated?: boolean
   stepId: AutomationTriggerStepId | AutomationActionStepId
+  blockToLoop?: string
   inputs: {
     [key: string]: any
   }
   schema: {
-    inputs: {
-      [key: string]: any
-    }
-    outputs: {
-      [key: string]: any
-    }
+    inputs: InputOutputBlock
+    outputs: InputOutputBlock
   }
+  custom?: boolean
+}
+
+/**
+ * Automation block condition GOTO,
+ * 3 fields below are used togo feature
+ * 
+ * @ref: https://github.com/xnohat/budibase/commit/bf6280edad4f900aa1c9e9afb767dc53bb82dce4
+ */
+export interface AutomationGoToStep {
   blockComments: any
   blockLabel: any
   stepnumber: any
+}
+
+export interface AutomationStep extends AutomationStepSchema, AutomationGoToStep {
+  id: string
 }
 
 export interface AutomationTrigger extends AutomationStep {
@@ -92,4 +170,12 @@ export interface AutomationLogPage {
   data: AutomationLog[]
   hasNextPage: boolean
   nextPage?: string
+}
+
+export type AutomationStepInput = {
+  inputs: Record<string, any>
+  context: Record<string, any>
+  emitter: EventEmitter
+  appId: string
+  apiKey?: string
 }

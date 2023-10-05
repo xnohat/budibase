@@ -1,7 +1,7 @@
 const { processEvent } = require("./utils")
 const { automationQueue, shutdown } = require("./bullboard")
 const { TRIGGER_DEFINITIONS, rebootTrigger } = require("./triggers")
-const { ACTION_DEFINITIONS } = require("./actions")
+const { BUILTIN_ACTION_DEFINITIONS } = require("./actions")
 
 /**
  * This module is built purely to kick off the worker farm and manage the inputs/outputs
@@ -26,4 +26,4 @@ exports.shutdown = () => {
 
 exports.automationQueue = automationQueue
 exports.TRIGGER_DEFINITIONS = TRIGGER_DEFINITIONS
-exports.ACTION_DEFINITIONS = ACTION_DEFINITIONS
+exports.BUILTIN_ACTION_DEFINITIONS = BUILTIN_ACTION_DEFINITIONS

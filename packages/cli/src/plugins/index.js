@@ -50,7 +50,7 @@ async function init(opts) {
   if (!type || !PLUGIN_TYPE_ARR.includes(type)) {
     console.log(
       error(
-        "Please provide a type to init, either 'component' or 'datasource'."
+        "Please provide a type to init, either 'component', 'datasource' or 'automation'."
       )
     )
     return

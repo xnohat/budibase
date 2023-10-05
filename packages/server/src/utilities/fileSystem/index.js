@@ -34,6 +34,7 @@ const fetch = require("node-fetch")
 const TOP_LEVEL_PATH = join(__dirname, "..", "..", "..")
 const NODE_MODULES_PATH = join(TOP_LEVEL_PATH, "node_modules")
 const DATASOURCE_PATH = join(budibaseTempDir(), "datasource")
+const AUTOMATION_PATH = join(budibaseTempDir(), "automation")
 
 /**
  * The single stack system (Cloud and Builder) should not make use of the file system where possible,
@@ -91,7 +92,7 @@ exports.checkDevelopmentEnvironment = () => {
  * @param {Object} template The template object retrieved from the Koa context object.
  * @returns {Object} Returns an fs read stream which can be loaded into the database.
  */
- exports.getTemplateStream = async template => {
+exports.getTemplateStream = async template => {
   if (template.file) {
     return fs.createReadStream(template.file.path)
   } else {
@@ -118,13 +119,13 @@ exports.loadHandlebarsFile = path => {
  * @param {string} contents the contents of the file which is to be returned from the API.
  * @return {Object} the read stream which can be put into the koa context body.
  */
-exports.apiFileReturn = contents => { 
-    const path = join(budibaseTempDir(), uuid()); 
-    fs.writeFileSync(path, "\ufeff" + contents); 
-    let readerStream = fs.createReadStream(path); 
-    readerStream.setEncoding("binary"); 
-    return readerStream; 
-};
+exports.apiFileReturn = contents => {
+  const path = join(budibaseTempDir(), uuid())
+  fs.writeFileSync(path, "\ufeff" + contents)
+  let readerStream = fs.createReadStream(path)
+  readerStream.setEncoding("binary")
+  return readerStream
+}
 
 exports.defineFilter = excludeRows => {
   const ids = [USER_METDATA_PREFIX, LINK_USER_METADATA_PREFIX]
@@ -143,7 +144,7 @@ exports.defineFilter = excludeRows => {
  * @param {boolean} excludeRows Flag to state whether the export should include data.
  * @returns {*} either a string or a stream of the backup
  */
- const backupAppData = async (appId, config, excludeRows) => {
+const backupAppData = async (appId, config, excludeRows) => {
   return await exports.exportDB(appId, {
     ...config,
     filter: exports.defineFilter(excludeRows),
@@ -400,11 +401,11 @@ const getPluginMetadata = async path => {
 }
 exports.getPluginMetadata = getPluginMetadata
 
-exports.getDatasourcePlugin = async (name, url, hash) => {
-  if (!fs.existsSync(DATASOURCE_PATH)) {
-    fs.mkdirSync(DATASOURCE_PATH)
+async function getPluginImpl(path, name, url, hash) {
+  if (!fs.existsSync(path)) {
+    fs.mkdirSync(path)
   }
-  const filename = join(DATASOURCE_PATH, name)
+  const filename = join(path, name)
   const metadataName = `${filename}.bbmetadata`
   if (fs.existsSync(filename)) {
     const currentHash = fs.readFileSync(metadataName, "utf8")
@@ -431,6 +432,14 @@ exports.getDatasourcePlugin = async (name, url, hash) => {
       `Unable to retrieve plugin - reason: ${await response.text()}`
     )
   }
+}
+
+exports.getDatasourcePlugin = async (name, url, hash) => {
+  return getPluginImpl(DATASOURCE_PATH, name, url, hash)
+}
+
+exports.getAutomationPlugin = async (name, url, hash) => {
+  return getPluginImpl(AUTOMATION_PATH, name, url, hash)
 }
 
 /**

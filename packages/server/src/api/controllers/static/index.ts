@@ -116,7 +116,7 @@ export const serveApp = async function (ctx: any) {
     const { head, html, css } = App.render({
       title: config?.comboMetaTitleEnabled ? config?.metaTitle : appInfo.name+' '+config?.metaTitleSuffix,
         metaTitle: config?.comboMetaTitleEnabled ? config?.metaTitle : appInfo.name+' '+config?.metaTitleSuffix,
-        metaImage: (!!config?.metaImageUrl) ? config?.platformUrl+config?.metaImageUrl :"https://res.cloudinary.com/daog6scxm/image/upload/v1666109324/meta-images/budibase-meta-image_uukc1m.png",
+        metaImage: (config?.metaImageUrl) ? config?.platformUrl+config?.metaImageUrl :"https://res.cloudinary.com/daog6scxm/image/upload/v1666109324/meta-images/budibase-meta-image_uukc1m.png",
         metaDescription: config?.metaDescription || "",
         favicon:
           config.faviconUrl ||

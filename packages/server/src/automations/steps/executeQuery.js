@@ -1,13 +1,18 @@
 const queryController = require("../../api/controllers/query")
 const { buildCtx } = require("./utils")
 const automationUtils = require("../automationUtils")
+import {
+  AutomationCustomIOType,
+  AutomationIOType,
+  AutomationStepType,
+} from "@budibase/types"
 
 exports.definition = {
   name: "External Data Connector",
   tagline: "Execute Data Connector",
   icon: "Data",
   description: "Execute a query in an external data connector",
-  type: "ACTION",
+  type: AutomationStepType.ACTION,
   stepId: "EXECUTE_QUERY",
   internal: true,
   inputs: {},
@@ -15,14 +20,14 @@ exports.definition = {
     inputs: {
       properties: {
         query: {
-          type: "object",
+          type: AutomationIOType.OBJECT,
           properties: {
             queryId: {
-              type: "string",
-              customType: "query",
+              type: AutomationIOType.STRING,
+              customType: AutomationCustomIOType.QUERY,
             },
           },
-          customType: "queryParams",
+          customType: AutomationCustomIOType.QUERY_PARAMS,
           title: "Parameters",
           required: ["queryId"],
         },
@@ -32,11 +37,11 @@ exports.definition = {
     outputs: {
       properties: {
         response: {
-          type: "object",
+          type: AutomationIOType.OBJECT,
           description: "The response from the datasource execution",
         },
         info: {
-          type: "object",
+          type: AutomationIOType.OBJECT,
           description:
             "Some query types may return extra data, like headers from a REST query",
         },
@@ -45,8 +50,8 @@ exports.definition = {
           description: "Whether the action was successful",
         },
       },
+      required: ["response", "success"],
     },
-    required: ["response", "success"],
   },
 }
 

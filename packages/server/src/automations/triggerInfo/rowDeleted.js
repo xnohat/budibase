@@ -1,17 +1,24 @@
-exports.definition = {
+import {
+  AutomationCustomIOType,
+  AutomationIOType,
+  AutomationStepType,
+  AutomationTriggerStepId,
+} from "@budibase/types"
+
+export const definition = {
   name: "Row Deleted",
   event: "row:delete",
   icon: "TableRowRemoveCenter",
   tagline: "Row is deleted from {{inputs.enriched.table.name}}",
   description: "Fired when a row is deleted from your database",
-  stepId: "ROW_DELETED",
+  stepId: AutomationTriggerStepId.ROW_DELETED,
   inputs: {},
   schema: {
     inputs: {
       properties: {
         tableId: {
-          type: "string",
-          customType: "table",
+          type: AutomationIOType.STRING,
+          customType: AutomationCustomIOType.TABLE,
           title: "Table",
         },
       },
@@ -20,13 +27,13 @@ exports.definition = {
     outputs: {
       properties: {
         row: {
-          type: "object",
-          customType: "row",
+          type: AutomationIOType.OBJECT,
+          customType: AutomationCustomIOType.ROW,
           description: "The row that was deleted",
         },
       },
       required: ["row"],
     },
   },
-  type: "TRIGGER",
+  type: AutomationStepType.TRIGGER,
 }

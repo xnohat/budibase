@@ -4,7 +4,10 @@ const { createHomeScreen } = require("../../constants/screens")
 const { EMPTY_LAYOUT } = require("../../constants/layouts")
 const { cloneDeep } = require("lodash/fp")
 const { v4: uuidv4 } = require("uuid")
-const { TRIGGER_DEFINITIONS, ACTION_DEFINITIONS } = require("../../automations")
+const {
+  TRIGGER_DEFINITIONS,
+  BUILTIN_ACTION_DEFINITIONS,
+} = require("../../automations")
 
 exports.TENANT_ID = "default"
 
@@ -65,7 +68,9 @@ exports.view = tableId => {
   }
 }
 
-exports.automationStep = (actionDefinition = ACTION_DEFINITIONS.CREATE_ROW) => {
+exports.automationStep = (
+  actionDefinition = BUILTIN_ACTION_DEFINITIONS.CREATE_ROW
+) => {
   return {
     id: uuidv4(),
     ...actionDefinition,

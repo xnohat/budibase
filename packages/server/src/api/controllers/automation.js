@@ -1,4 +1,3 @@
-const actions = require("../../automations/actions")
 const triggers = require("../../automations/triggers")
 const {
   getAutomationParams,
@@ -21,9 +20,17 @@ const {
 const { events } = require("@budibase/backend-core")
 const { app } = require("@budibase/backend-core/cache")
 const { automations } = require("@budibase/pro")
+const {
+  getActionDefinitions: actionDefs,
+} = require("../../automations/actions")
 
-const ACTION_DEFS = removeDeprecated(actions.ACTION_DEFINITIONS)
-const TRIGGER_DEFS = removeDeprecated(triggers.TRIGGER_DEFINITIONS)
+async function getActionDefinitions() {
+  return removeDeprecated(await actionDefs())
+}
+
+function getTriggerDefinitions() {
+  return removeDeprecated(triggers.TRIGGER_DEFINITIONS)
+}
 
 /*************************
  *                       *
@@ -217,17 +224,17 @@ exports.clearLogError = async function (ctx) {
 }
 
 exports.getActionList = async function (ctx) {
-  ctx.body = ACTION_DEFS
+  ctx.body = await getActionDefinitions()
 }
 
 exports.getTriggerList = async function (ctx) {
-  ctx.body = TRIGGER_DEFS
+  ctx.body = getTriggerDefinitions()
 }
 
 module.exports.getDefinitionList = async function (ctx) {
   ctx.body = {
-    trigger: TRIGGER_DEFS,
-    action: ACTION_DEFS,
+    trigger: getTriggerDefinitions(),
+    action: await getActionDefinitions(),
   }
 }
 
@@ -287,7 +294,9 @@ exports.test = async function (ctx) {
 exports.exportAutomation = async function (ctx) {
   const db = getAppDB()
   let automation = await db.get(ctx.params.id)
-  const backupIdentifier = `automation-${automation.name}-export-${new Date().getTime()}.json`
+  const backupIdentifier = `automation-${
+    automation.name
+  }-export-${new Date().getTime()}.json`
   ctx.attachment(backupIdentifier)
   ctx.body = automation
 }

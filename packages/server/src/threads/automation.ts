@@ -6,7 +6,7 @@ import {
   disableCronById,
   isErrorInOutput,
 } from "../automations/utils"
-import { default as actions } from "../automations/actions"
+import * as actions from "../automations/actions"
 import { default as automationUtils } from "../automations/automationUtils"
 import { default as AutomationEmitter } from "../events/AutomationEmitter"
 import { generateAutomationMetadataID, isProdAppID } from "../db/utils"
@@ -26,10 +26,10 @@ import { WorkerCallback } from "./definitions"
 const { doInAppContext, getAppDB } = require("@budibase/backend-core/context")
 const { logAlertWithInfo, logWarn } = require("@budibase/backend-core/logging")
 const { processObject } = require("@budibase/string-templates")
-const FILTER_STEP_ID = actions.ACTION_DEFINITIONS.FILTER.stepId
-const FILTERGOTO_STEP_ID = actions.ACTION_DEFINITIONS.FILTERGOTO.stepId
-const STOP_STEP_ID = actions.ACTION_DEFINITIONS.STOP.stepId
-const LOOP_STEP_ID = actions.ACTION_DEFINITIONS.LOOP.stepId
+const FILTER_STEP_ID = actions.BUILTIN_ACTION_DEFINITIONS.FILTER.stepId
+const FILTERGOTO_STEP_ID = actions.BUILTIN_ACTION_DEFINITIONS.FILTERGOTO.stepId
+const STOP_STEP_ID = actions.BUILTIN_ACTION_DEFINITIONS.STOP.stepId
+const LOOP_STEP_ID = actions.BUILTIN_ACTION_DEFINITIONS.LOOP.stepId
 const CRON_STEP_ID = triggerDefs.CRON.stepId
 const STOPPED_STATUS = { success: true, status: AutomationStatus.STOPPED }
 const { cloneDeep } = require("lodash/fp")

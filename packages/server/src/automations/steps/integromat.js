@@ -1,5 +1,6 @@
 const fetch = require("node-fetch")
 const { getFetchResponse } = require("./utils")
+import { AutomationStepType, AutomationIOType } from "@budibase/types"
 
 exports.definition = {
   name: "Integromat Integration",
@@ -8,34 +9,34 @@ exports.definition = {
     "Performs a webhook call to Integromat and gets the response (if configured)",
   icon: "ri-shut-down-line",
   stepId: "integromat",
-  type: "ACTION",
+  type: AutomationStepType.ACTION,
   internal: false,
   inputs: {},
   schema: {
     inputs: {
       properties: {
         url: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Webhook URL",
         },
         value1: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Input Value 1",
         },
         value2: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Input Value 2",
         },
         value3: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Input Value 3",
         },
         value4: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Input Value 4",
         },
         value5: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Input Value 5",
         },
       },
@@ -44,15 +45,15 @@ exports.definition = {
     outputs: {
       properties: {
         success: {
-          type: "boolean",
+          type: AutomationIOType.BOOLEAN,
           description: "Whether call was successful",
         },
         httpStatus: {
-          type: "number",
+          type: AutomationIOType.NUMBER,
           description: "The HTTP status code returned",
         },
         response: {
-          type: "object",
+          type: AutomationIOType.OBJECT,
           description: "The webhook response - this can have properties",
         },
       },

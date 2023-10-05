@@ -6,3 +6,6 @@ docker-error.log
 envoy.yaml
 *.tar.gz
 prebuilds/
+budibase-automation/
+budibase-component/
+budibase-datasource/

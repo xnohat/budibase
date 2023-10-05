@@ -1,24 +1,29 @@
-const fetch = require("node-fetch")
-const { getFetchResponse } = require("./utils")
+import fetch from "node-fetch"
+import { getFetchResponse } from "./utils"
+import {
+  AutomationActionStepId,
+  AutomationStepType,
+  AutomationIOType,
+} from "@budibase/types"
 
-exports.definition = {
+export const definition = {
   name: "Slack Message",
   tagline: "Send a message to Slack",
   description: "Send a message to Slack",
   icon: "ri-slack-line",
-  stepId: "slack",
-  type: "ACTION",
+  stepId: AutomationActionStepId.slack,
+  type: AutomationStepType.ACTION,
   internal: false,
   inputs: {},
   schema: {
     inputs: {
       properties: {
         url: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Incoming Webhook URL",
         },
         text: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Message",
         },
       },
@@ -27,15 +32,15 @@ exports.definition = {
     outputs: {
       properties: {
         httpStatus: {
-          type: "number",
+          type: AutomationIOType.NUMBER,
           description: "The HTTP status code of the request",
         },
         success: {
-          type: "boolean",
+          type: AutomationIOType.BOOLEAN,
           description: "Whether the message sent successfully",
         },
         response: {
-          type: "string",
+          type: AutomationIOType.STRING,
           description: "The response from the Slack Webhook",
         },
       },
@@ -43,17 +48,33 @@ exports.definition = {
   },
 }
 
-exports.run = async function ({ inputs }) {
+export async function run({ inputs }) {
   let { url, text } = inputs
-  const response = await fetch(url, {
-    method: "post",
-    body: JSON.stringify({
-      text,
-    }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
+  if (!url?.trim()?.length) {
+    return {
+      httpStatus: 400,
+      response: "Missing Webhook URL",
+      success: false,
+    }
+  }
+  let response
+  try {
+    response = await fetch(url, {
+      method: "post",
+      body: JSON.stringify({
+        text,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  } catch (err) {
+    return {
+      httpStatus: 400,
+      response: err.message,
+      success: false,
+    }
+  }
 
   const { status, message } = await getFetchResponse(response)
   return {

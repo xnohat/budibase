@@ -1,6 +1,11 @@
 const fetch = require("node-fetch")
 const { getFetchResponse } = require("./utils")
 const automationUtils = require("../automationUtils")
+import {
+  AutomationCustomIOType,
+  AutomationIOType,
+  AutomationStepType,
+} from "@budibase/types"
 
 const RequestType = {
   POST: "POST",
@@ -22,7 +27,7 @@ exports.definition = {
   tagline: "Send a {{inputs.requestMethod}} request",
   icon: "Send",
   description: "Send a request of specified method to a URL",
-  type: "ACTION",
+  type: AutomationStepType.ACTION,
   internal: true,
   stepId: "OUTGOING_WEBHOOK",
   inputs: {
@@ -35,23 +40,23 @@ exports.definition = {
     inputs: {
       properties: {
         requestMethod: {
-          type: "string",
+          type: AutomationIOType.STRING,
           enum: Object.values(RequestType),
           title: "Request method",
         },
         url: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "URL",
         },
         requestBody: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "JSON Body",
-          customType: "wide",
+          customType: AutomationCustomIOType.WIDE,
         },
         headers: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Headers",
-          customType: "wide",
+          customType: AutomationCustomIOType.WIDE,
         },
       },
       required: ["requestMethod", "url"],
@@ -59,15 +64,15 @@ exports.definition = {
     outputs: {
       properties: {
         response: {
-          type: "object",
+          type: AutomationIOType.OBJECT,
           description: "The response from the webhook",
         },
         httpStatus: {
-          type: "number",
+          type: AutomationIOType.NUMBER,
           description: "The HTTP status code returned",
         },
         success: {
-          type: "boolean",
+          type: AutomationIOType.BOOLEAN,
           description: "Whether the action was successful",
         },
       },

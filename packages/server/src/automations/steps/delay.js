@@ -1,4 +1,5 @@
 let { wait } = require("../../utilities")
+import { AutomationIOType, AutomationStepType } from "@budibase/types"
 
 exports.definition = {
   name: "Delay",
@@ -12,7 +13,7 @@ exports.definition = {
     inputs: {
       properties: {
         time: {
-          type: "number",
+          type: AutomationIOType.NUMBER,
           title: "Delay in milliseconds",
         },
       },
@@ -21,14 +22,14 @@ exports.definition = {
     outputs: {
       properties: {
         success: {
-          type: "boolean",
+          type: AutomationIOType.BOOLEAN,
           description: "Whether the delay was successful",
         },
       },
       required: ["success"],
     },
   },
-  type: "LOGIC",
+  type: AutomationStepType.LOGIC,
 }
 
 exports.run = async function delay({ inputs }) {

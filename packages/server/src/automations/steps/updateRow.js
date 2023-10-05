@@ -1,26 +1,36 @@
-const rowController = require("../../api/controllers/row")
-const automationUtils = require("../automationUtils")
-const { buildCtx } = require("./utils")
+import * as rowController from "../../api/controllers/row"
+import * as automationUtils from "../automationUtils"
+import { buildCtx } from "./utils"
+import {
+  AutomationActionStepId,
+  AutomationCustomIOType,
+  AutomationIOType,
+  AutomationStepType,
+} from "@budibase/types"
 
-exports.definition = {
+export const definition = {
   name: "Update Row",
   tagline: "Update a {{inputs.enriched.table.name}} row",
   icon: "Refresh",
   description: "Update a row in your database",
-  type: "ACTION",
+  type: AutomationStepType.ACTION,
   internal: true,
-  stepId: "UPDATE_ROW",
+  stepId: AutomationActionStepId.UPDATE_ROW,
   inputs: {},
   schema: {
     inputs: {
       properties: {
+        meta: {
+          type: AutomationIOType.OBJECT,
+          title: "Field settings",
+        },
         row: {
-          type: "object",
-          customType: "row",
+          type: AutomationIOType.OBJECT,
+          customType: AutomationCustomIOType.ROW,
           title: "Table",
         },
         rowId: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Row ID",
         },
       },
@@ -29,24 +39,24 @@ exports.definition = {
     outputs: {
       properties: {
         row: {
-          type: "object",
-          customType: "row",
+          type: AutomationIOType.OBJECT,
+          customType: AutomationCustomIOType.ROW,
           description: "The updated row",
         },
         response: {
-          type: "object",
+          type: AutomationIOType.OBJECT,
           description: "The response from the table",
         },
         success: {
-          type: "boolean",
+          type: AutomationIOType.BOOLEAN,
           description: "Whether the action was successful",
         },
         id: {
-          type: "string",
+          type: AutomationIOType.STRING,
           description: "The identifier of the updated row",
         },
         revision: {
-          type: "string",
+          type: AutomationIOType.STRING,
           description: "The revision of the updated row",
         },
       },
@@ -55,7 +65,7 @@ exports.definition = {
   },
 }
 
-exports.run = async function ({ inputs, appId, emitter }) {
+export async function run({ inputs, appId, emitter }) {
   if (inputs.rowId == null || inputs.row == null) {
     return {
       success: false,
@@ -68,7 +78,10 @@ exports.run = async function ({ inputs, appId, emitter }) {
 
   // clear any undefined, null or empty string properties so that they aren't updated
   for (let propKey of Object.keys(inputs.row)) {
-    if (inputs.row[propKey] == null || inputs.row[propKey] === "") {
+    if (
+      (inputs.row[propKey] == null || inputs.row[propKey] === "") &&
+      !inputs.meta?.fields?.[propKey]?.clearRelationships
+    ) {
       delete inputs.row[propKey]
     }
   }

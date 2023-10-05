@@ -1,26 +1,10 @@
-import { npmUpload, urlUpload, githubUpload, fileUpload } from "./uploaders"
-import { getGlobalDB } from "@budibase/backend-core/tenancy"
-import { validate } from "@budibase/backend-core/plugins"
+import { npmUpload, urlUpload, githubUpload } from "./uploaders"
+import { plugins as pluginCore } from "@budibase/backend-core"
 import { PluginType, FileType, PluginSource } from "@budibase/types"
 import env from "../../../environment"
 import { ClientAppSocket } from "../../../websocket"
-import { db as dbCore } from "@budibase/backend-core"
-import { plugins } from "@budibase/pro"
-
-export async function getPlugins(type?: PluginType) {
-  const db = getGlobalDB()
-  const response = await db.allDocs(
-    dbCore.getPluginParams(null, {
-      include_docs: true,
-    })
-  )
-  const plugins = response.rows.map((row: any) => row.doc)
-  if (type) {
-    return plugins.filter((plugin: any) => plugin.schema?.type === type)
-  } else {
-    return plugins
-  }
-}
+import sdk from "../../../sdk"
+import { plugins as pluginPro } from "@budibase/pro"
 
 export async function upload(ctx: any) {
   const plugins: FileType[] =
@@ -31,7 +15,7 @@ export async function upload(ctx: any) {
     let docs = []
     // can do single or multiple plugins
     for (let plugin of plugins) {
-      const doc = await processUploadedPlugin(plugin, PluginSource.FILE)
+      const doc = await sdk.plugins.processUploaded(plugin, PluginSource.FILE)
       docs.push(doc)
     }
     ctx.body = {
@@ -76,7 +60,7 @@ export async function create(ctx: any) {
         break
     }
 
-    validate(metadata?.schema)
+    pluginCore.validate(metadata?.schema)
 
     // Only allow components in cloud
     if (!env.SELF_HOSTED && metadata?.schema?.type !== PluginType.COMPONENT) {
@@ -85,7 +69,7 @@ export async function create(ctx: any) {
       )
     }
 
-    const doc = await plugins.storePlugin(metadata, directory, source)
+    const doc = await pluginPro.storePlugin(metadata, directory, source)
 
     ClientAppSocket.emit("plugins-update", { name, hash: doc.hash })
     ctx.body = {
@@ -101,34 +85,17 @@ export async function create(ctx: any) {
 }
 
 export async function fetch(ctx: any) {
-  ctx.body = await getPlugins()
+  ctx.body = await sdk.plugins.fetch()
 }
 
 export async function destroy(ctx: any) {
   const { pluginId } = ctx.params
 
   try {
-    await plugins.deletePlugin(pluginId)
+    await pluginPro.deletePlugin(pluginId)
 
     ctx.body = { message: `Plugin ${ctx.params.pluginId} deleted.` }
   } catch (err: any) {
     ctx.throw(400, err.message)
   }
-}
-
-export async function processUploadedPlugin(
-  plugin: FileType,
-  source?: PluginSource
-) {
-  const { metadata, directory } = await fileUpload(plugin)
-  validate(metadata?.schema)
-
-  // Only allow components in cloud
-  if (!env.SELF_HOSTED && metadata?.schema?.type !== PluginType.COMPONENT) {
-    throw new Error("Only component plugins are supported outside of self-host")
-  }
-
-  const doc = await plugins.storePlugin(metadata, directory, source)
-  ClientAppSocket.emit("plugin-update", { name: doc.name, hash: doc.hash })
-  return doc
 }

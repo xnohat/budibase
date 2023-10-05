@@ -1,39 +1,45 @@
-const fetch = require("node-fetch")
-const { getFetchResponse } = require("./utils")
+import fetch from "node-fetch"
+import { getFetchResponse } from "./utils"
+import {
+  AutomationActionStepId,
+  AutomationStepType,
+  AutomationIOType,
+} from "@budibase/types"
 
-exports.definition = {
+export const definition = {
   name: "Zapier Webhook",
-  stepId: "zapier",
-  type: "ACTION",
+  stepId: AutomationActionStepId.zapier,
+  type: AutomationStepType.ACTION,
   internal: false,
   description: "Trigger a Zapier Zap via webhooks",
   tagline: "Trigger a Zapier Zap",
   icon: "ri-flashlight-line",
+  inputs: {},
   schema: {
     inputs: {
       properties: {
         url: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Webhook URL",
         },
         value1: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Payload Value 1",
         },
         value2: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Payload Value 2",
         },
         value3: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Payload Value 3",
         },
         value4: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Payload Value 4",
         },
         value5: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Payload Value 5",
         },
       },
@@ -42,11 +48,11 @@ exports.definition = {
     outputs: {
       properties: {
         httpStatus: {
-          type: "number",
+          type: AutomationIOType.NUMBER,
           description: "The HTTP status code of the request",
         },
         response: {
-          type: "string",
+          type: AutomationIOType.STRING,
           description: "The response from Zapier",
         },
       },
@@ -54,25 +60,41 @@ exports.definition = {
   },
 }
 
-exports.run = async function ({ inputs }) {
+export async function run({ inputs }) {
   const { url, value1, value2, value3, value4, value5 } = inputs
 
+  if (!url?.trim()?.length) {
+    return {
+      httpStatus: 400,
+      response: "Missing Webhook URL",
+      success: false,
+    }
+  }
   // send the platform to make sure zaps always work, even
   // if no values supplied
-  const response = await fetch(url, {
-    method: "post",
-    body: JSON.stringify({
-      platform: "budibase",
-      value1,
-      value2,
-      value3,
-      value4,
-      value5,
-    }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
+  let response
+  try {
+    response = await fetch(url, {
+      method: "post",
+      body: JSON.stringify({
+        platform: "budibase",
+        value1,
+        value2,
+        value3,
+        value4,
+        value5,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  } catch (err) {
+    return {
+      httpStatus: 400,
+      response: err.message,
+      success: false,
+    }
+  }
 
   const { status, message } = await getFetchResponse(response)
 

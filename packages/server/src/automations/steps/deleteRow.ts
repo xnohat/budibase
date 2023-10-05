@@ -1,13 +1,19 @@
 import { destroy } from "../../api/controllers/row"
 import { buildCtx } from "./utils"
 import { getError } from "../automationUtils"
+import {
+  AutomationStepType,
+  AutomationIOType,
+  AutomationCustomIOType,
+} from "@budibase/types"
+
 
 export const definition = {
   description: "Delete a row from your database",
   icon: "TableRowRemoveCenter",
   name: "Delete Row",
   tagline: "Delete a {{inputs.enriched.table.name}} row",
-  type: "ACTION",
+  type: AutomationStepType.ACTION,
   stepId: "DELETE_ROW",
   internal: true,
   inputs: {},
@@ -15,12 +21,12 @@ export const definition = {
     inputs: {
       properties: {
         tableId: {
-          type: "string",
-          customType: "table",
+          type: AutomationIOType.STRING,
+          customType: AutomationCustomIOType.TABLE,
           title: "Table",
         },
         id: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Row ID",
         },
       },
@@ -29,16 +35,16 @@ export const definition = {
     outputs: {
       properties: {
         row: {
-          type: "object",
-          customType: "row",
+          type: AutomationIOType.OBJECT,
+          customType: AutomationCustomIOType.ROW,
           description: "The deleted row",
         },
         response: {
-          type: "object",
+          type: AutomationIOType.OBJECT,
           description: "The response from the table",
         },
         success: {
-          type: "boolean",
+          type: AutomationIOType.BOOLEAN,
           description: "Whether the deletion was successful",
         },
       },

@@ -2,3 +2,4 @@
 // The outer exports can't be used as they now reference dist directly
 export * from "../objectStore"
 export * from "../objectStore/utils"
+export * from "../objectStore/buckets"

@@ -1,17 +1,24 @@
-exports.definition = {
+import {
+  AutomationCustomIOType,
+  AutomationIOType,
+  AutomationStepType,
+  AutomationTriggerStepId,
+} from "@budibase/types"
+
+export const definition = {
   name: "App Action",
   event: "app:trigger",
   icon: "Apps",
   tagline: "Automation fired from the frontend",
   description: "Trigger an automation from an action inside your app",
-  stepId: "APP",
+  stepId: AutomationTriggerStepId.APP,
   inputs: {},
   schema: {
     inputs: {
       properties: {
         fields: {
-          type: "object",
-          customType: "triggerSchema",
+          type: AutomationIOType.OBJECT,
+          customType: AutomationCustomIOType.TRIGGER_SCHEMA,
           title: "Fields",
         },
       },
@@ -20,13 +27,13 @@ exports.definition = {
     outputs: {
       properties: {
         fields: {
-          type: "object",
+          type: AutomationIOType.OBJECT,
           description: "Fields submitted from the app frontend",
-          customType: "triggerSchema",
+          customType: AutomationCustomIOType.TRIGGER_SCHEMA,
         },
       },
       required: ["fields"],
     },
   },
-  type: "TRIGGER",
+  type: AutomationStepType.TRIGGER,
 }

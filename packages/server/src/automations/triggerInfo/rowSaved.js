@@ -1,17 +1,24 @@
-exports.definition = {
+import {
+  AutomationCustomIOType,
+  AutomationIOType,
+  AutomationStepType,
+  AutomationTriggerStepId,
+} from "@budibase/types"
+
+export const definition = {
   name: "Row Created",
   event: "row:save",
   icon: "TableRowAddBottom",
   tagline: "Row is added to {{inputs.enriched.table.name}}",
   description: "Fired when a row is added to your database",
-  stepId: "ROW_SAVED",
+  stepId: AutomationTriggerStepId.ROW_SAVED,
   inputs: {},
   schema: {
     inputs: {
       properties: {
         tableId: {
-          type: "string",
-          customType: "table",
+          type: AutomationIOType.STRING,
+          customType: AutomationCustomIOType.TABLE,
           title: "Table",
         },
       },
@@ -20,21 +27,21 @@ exports.definition = {
     outputs: {
       properties: {
         row: {
-          type: "object",
-          customType: "row",
+          type: AutomationIOType.OBJECT,
+          customType: AutomationCustomIOType.ROW,
           description: "The new row that was created",
         },
         id: {
-          type: "string",
+          type: AutomationIOType.STRING,
           description: "Row ID - can be used for updating",
         },
         revision: {
-          type: "string",
+          type: AutomationIOType.STRING,
           description: "Revision of row",
         },
       },
       required: ["row", "id"],
     },
   },
-  type: "TRIGGER",
+  type: AutomationStepType.TRIGGER,
 }

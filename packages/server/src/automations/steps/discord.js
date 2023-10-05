@@ -1,5 +1,6 @@
 const fetch = require("node-fetch")
 const { getFetchResponse } = require("./utils")
+import { AutomationStepType, AutomationIOType } from "@budibase/types"
 
 const DEFAULT_USERNAME = "Budibase Automate"
 const DEFAULT_AVATAR_URL = "https://i.imgur.com/a1cmTKM.png"
@@ -10,26 +11,26 @@ exports.definition = {
   description: "Send a message to a Discord server",
   icon: "ri-discord-line",
   stepId: "discord",
-  type: "ACTION",
+  type: AutomationStepType.ACTION,
   internal: false,
   inputs: {},
   schema: {
     inputs: {
       properties: {
         url: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Discord Webhook URL",
         },
         username: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Bot Name",
         },
         avatar_url: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Bot Avatar URL",
         },
         content: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Message",
         },
       },
@@ -42,7 +43,7 @@ exports.definition = {
           description: "The HTTP status code of the request",
         },
         response: {
-          type: "string",
+          type: AutomationIOType.STRING,
           description: "The response from the Discord Webhook",
         },
         success: {

@@ -2,6 +2,12 @@ const { execSync } = require("child_process")
 const { processStringSync } = require("@budibase/string-templates")
 const automationUtils = require("../automationUtils")
 const environment = require("../../environment")
+import {
+  AutomationCustomIOType,
+  AutomationIOType,
+  AutomationStepType,
+} from "@budibase/types"
+
 
 exports.definition = {
   name: "Bash Scripting",
@@ -9,6 +15,7 @@ exports.definition = {
   icon: "JourneyEvent",
   description: "Run a bash script",
   type: "ACTION",
+  type: AutomationStepType.ACTION,
   internal: true,
   stepId: "EXECUTE_BASH",
   inputs: {},
@@ -16,8 +23,8 @@ exports.definition = {
     inputs: {
       properties: {
         code: {
-          type: "string",
-          customType: "code",
+          type: AutomationIOType.STRING,
+          customType: AutomationCustomIOType.CODE,
           title: "Code",
         },
       },
@@ -26,16 +33,16 @@ exports.definition = {
     outputs: {
       properties: {
         stdout: {
-          type: "string",
+          type: AutomationIOType.STRING,
           description: "Standard output of your bash command or script",
         },
         success: {
-          type: "boolean",
+          type: AutomationIOType.BOOLEAN,
           description: "Whether the command was successful",
         },
       },
+      required: ["stdout"],
     },
-    required: ["stdout"],
   },
 }
 

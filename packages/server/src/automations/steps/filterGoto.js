@@ -1,3 +1,5 @@
+import { AutomationStepType, AutomationIOType } from "@budibase/types"
+
 const FilterConditions = {
   EQUAL: "EQUAL",
   NOT_EQUAL: "NOT_EQUAL",
@@ -19,9 +21,8 @@ exports.definition = {
   name: "Condition Goto",
   tagline: "{{inputs.field}} {{inputs.condition}} {{inputs.value}}",
   icon: "Branch2",
-  description:
-    "Conditionally and Goto a step which meet certain conditions",
-  type: "LOGIC",
+  description: "Conditionally and Goto a step which meet certain conditions",
+  type: AutomationStepType.LOGIC,
   internal: true,
   stepId: "FILTERGOTO",
   inputs: {
@@ -31,26 +32,27 @@ exports.definition = {
     inputs: {
       properties: {
         field: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Reference Value",
         },
         condition: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Condition",
           enum: Object.values(FilterConditions),
           pretty: Object.values(PrettyFilterConditions),
         },
         value: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Comparison Value",
         },
         goto: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Go to Step Number or Go to Step Label",
         },
         maxloop: {
-          type: "number",
-          title: "Max Loop iterations to prevent infinite goto loop (leave empty for default 100)",
+          type: AutomationIOType.NUMBER,
+          title:
+            "Max Loop iterations to prevent infinite goto loop (leave empty for default 100)",
         },
       },
       required: ["field", "condition", "value", "goto"],
@@ -58,11 +60,11 @@ exports.definition = {
     outputs: {
       properties: {
         success: {
-          type: "boolean",
+          type: AutomationIOType.BOOLEAN,
           description: "Whether the action was successful",
         },
         result: {
-          type: "boolean",
+          type: AutomationIOType.BOOLEAN,
           description: "Whether the logic block passed",
         },
       },

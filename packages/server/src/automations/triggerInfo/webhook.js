@@ -1,22 +1,29 @@
-exports.definition = {
+import {
+  AutomationCustomIOType,
+  AutomationIOType,
+  AutomationStepType,
+  AutomationTriggerStepId,
+} from "@budibase/types"
+
+export const definition = {
   name: "Webhook",
   event: "web:trigger",
   icon: "Send",
   tagline: "Webhook endpoint is hit",
   description: "Trigger an automation when a HTTP POST webhook is hit",
-  stepId: "WEBHOOK",
+  stepId: AutomationTriggerStepId.WEBHOOK,
   inputs: {},
   schema: {
     inputs: {
       properties: {
         schemaUrl: {
-          type: "string",
-          customType: "webhookUrl",
+          type: AutomationIOType.STRING,
+          customType: AutomationCustomIOType.WEBHOOK_URL,
           title: "Schema URL",
         },
         triggerUrl: {
-          type: "string",
-          customType: "webhookUrl",
+          type: AutomationIOType.STRING,
+          customType: AutomationCustomIOType.WEBHOOK_URL,
           title: "Trigger URL",
         },
       },
@@ -24,17 +31,13 @@ exports.definition = {
     },
     outputs: {
       properties: {
-        api: {
-          type: "boolean",
-          description: "True when Webhook used as API, called with ...?api=true",
-        },
         body: {
-          type: "object",
+          type: AutomationIOType.OBJECT,
           description: "Body of the request which hit the webhook",
         },
       },
       required: ["body"],
     },
   },
-  type: "TRIGGER",
+  type: AutomationStepType.TRIGGER,
 }

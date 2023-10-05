@@ -1,3 +1,9 @@
+import {
+  AutomationCustomIOType,
+  AutomationIOType,
+  AutomationStepType,
+} from "@budibase/types"
+
 exports.definition = {
   name: "Looping",
   icon: "Reuse",
@@ -10,19 +16,19 @@ exports.definition = {
     inputs: {
       properties: {
         option: {
-          customType: "loopOption",
+          customType: AutomationCustomIOType.LOOP_OPTION,
           title: "Input type",
         },
         binding: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Binding / Value",
         },
         iterations: {
-          type: "number",
+          type: AutomationIOType.NUMBER,
           title: "Max loop iterations",
         },
         failure: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Failure Condition",
         },
       },
@@ -31,20 +37,20 @@ exports.definition = {
     outputs: {
       properties: {
         items: {
-          customType: "item",
+          customType: AutomationCustomIOType.ITEM,
           description: "The item currently being executed",
         },
         success: {
-          type: "boolean",
+          type: AutomationIOType.BOOLEAN,
           description: "Whether the message loop was successfully",
         },
         iterations: {
-          type: "number",
+          type: AutomationIOType.NUMBER,
           descriptions: "The amount of times the block ran",
         },
       },
       required: ["success", "items", "iterations"],
     },
   },
-  type: "LOGIC",
+  type: AutomationStepType.LOGIC,
 }

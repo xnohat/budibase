@@ -1,40 +1,45 @@
-const { sendSmtpEmail } = require("../../utilities/workerRequests")
-const automationUtils = require("../automationUtils")
+import { sendSmtpEmail } from "../../utilities/workerRequests"
+import * as automationUtils from "../automationUtils"
+import {
+  AutomationActionStepId,
+  AutomationStepType,
+  AutomationIOType,
+} from "@budibase/types"
 
-exports.definition = {
+export const definition = {
   description: "Send an email using SMTP",
   tagline: "Send SMTP email to {{inputs.to}}",
   icon: "Email",
   name: "Send Email (SMTP)",
-  type: "ACTION",
+  type: AutomationStepType.ACTION,
   internal: true,
-  stepId: "SEND_EMAIL_SMTP",
+  stepId: AutomationActionStepId.SEND_EMAIL_SMTP,
   inputs: {},
   schema: {
     inputs: {
       properties: {
         to: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Send To",
         },
         from: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Send From",
         },
         cc: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "CC",
         },
         bcc: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "BCC",
         },
         subject: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "Email Subject",
         },
         contents: {
-          type: "string",
+          type: AutomationIOType.STRING,
           title: "HTML Contents",
         },
       },
@@ -43,11 +48,11 @@ exports.definition = {
     outputs: {
       properties: {
         success: {
-          type: "boolean",
+          type: AutomationIOType.BOOLEAN,
           description: "Whether the email was sent",
         },
         response: {
-          type: "object",
+          type: AutomationIOType.OBJECT,
           description: "A response from the email client, this may be an error",
         },
       },
@@ -56,7 +61,7 @@ exports.definition = {
   },
 }
 
-exports.run = async function ({ inputs }) {
+export async function run({ inputs }) {
   let { to, from, subject, contents, cc, bcc } = inputs
   if (!contents) {
     contents = "<h1>No content</h1>"
