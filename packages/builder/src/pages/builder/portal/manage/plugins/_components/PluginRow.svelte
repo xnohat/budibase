@@ -7,6 +7,7 @@
     Button,
     Label,
     Input,
+    TextArea,
   } from "@budibase/bbui"
   import DeletePluginModal from "../_components/DeletePluginModal.svelte"
 
@@ -20,7 +21,12 @@
       ? plugin.schema.schema.icon || "Book"
       : plugin.schema.schema.icon || "Beaker"
 
-  $: friendlyName = plugin?.schema?.schema?.friendlyName
+  const isShowFriendlyInModal =
+    plugin?.schema?.schema?.friendlyName &&
+    plugin?.schema?.schema?.friendlyName?.length > 0
+
+  $: description = plugin?.schema?.schema?.description || ""
+  $: friendlyName = plugin?.schema?.schema?.friendlyName || ""
 
   function pluginDeleted() {
     if (detailsModal) {
@@ -43,9 +49,13 @@
         >
           {plugin.name}
         </Body>
-        <Body size="XS" color="var(--spectrum-global-color-gray-900)">
-          {friendlyName}
-        </Body>
+        <p
+          style="color:var(--spectrum-global-color-gray-900)"
+          class="spectrum-Body spectrum-Body--sizeXS custom-desc-name"
+          title={description}
+        >
+          {description}
+        </p>
       </div>
     </div>
   </div>
@@ -70,9 +80,16 @@
       <Input disabled value={plugin.name} />
     </div>
 
+    {#if isShowFriendlyInModal}
+      <div class="details-row">
+        <Label size="M">Friendly name</Label>
+        <Input disabled value={friendlyName} />
+      </div>
+    {/if}
+
     <div class="details-row">
-      <Label size="M">Friendly name</Label>
-      <Input disabled value={friendlyName} />
+      <Label size="M">Description</Label>
+      <TextArea minHeight="80px" disabled value={description} />
     </div>
 
     <div class="details-row">
@@ -151,5 +168,12 @@
   .footer {
     display: flex;
     gap: var(--spacing-l);
+  }
+
+  .custom-desc-name {
+    width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 </style>
