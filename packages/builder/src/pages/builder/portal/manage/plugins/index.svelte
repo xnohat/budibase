@@ -20,6 +20,7 @@
   let filterOptions = [
     { label: "All plugins", value: "all" },
     { label: "Components", value: "component" },
+    { label: "Automations", value: "automation" },
   ]
 
   if (!$admin.cloud) {
