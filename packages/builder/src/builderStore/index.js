@@ -2,6 +2,7 @@ import { getFrontendStore } from "./store/frontend"
 import { getAutomationStore } from "./store/automation"
 import { getTemporalStore } from "./store/temporal"
 import { getThemeStore } from "./store/theme"
+import { getDeploymentStore } from "./store/deployments"
 import { derived, writable } from "svelte/store"
 import { FrontendTypes, LAYOUT_NAMES } from "../constants"
 import { findComponent, findComponentPath } from "./componentUtils"
@@ -11,6 +12,8 @@ export const store = getFrontendStore()
 export const automationStore = getAutomationStore()
 export const themeStore = getThemeStore()
 export const temporalStore = getTemporalStore()
+export const deploymentStore = getDeploymentStore()
+
 
 // For legacy compatibility only, but with the new design UI this is just
 // the selected screen
@@ -106,3 +109,21 @@ export const mainLayout = derived(store, $store => {
 export const selectedAccessRole = writable("BASIC")
 
 export const screenSearchString = writable(null)
+
+
+// Derive map of resource IDs to other users.
+// We only ever care about a single user in each resource, so if multiple users
+// share the same datasource we can just overwrite them.
+export const userSelectedResourceMap = derived(userStore, $userStore => {
+  let map = {}
+  $userStore.forEach(user => {
+    if (user.builderMetadata?.selectedResourceId) {
+      map[user.builderMetadata?.selectedResourceId] = user
+    }
+  })
+  return map
+})
+
+export const isOnlyUser = derived(userStore, $userStore => {
+  return $userStore.length === 1
+})

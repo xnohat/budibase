@@ -29,6 +29,9 @@ import {
 import { Helpers } from "@budibase/bbui"
 import { Utils } from "@budibase/frontend-core"
 
+import { BuilderSocketEvent } from "@budibase/shared-core"
+
+
 const INITIAL_FRONTEND_STATE = {
   apps: [],
   name: "",
@@ -258,6 +261,33 @@ export const getFrontendStore = () => {
           return
         }
         return await sequentialScreenPatch(patchFn, screenId)
+      },
+      replace: async (screenId, screen) => {
+        if (!screenId) {
+          return
+        }
+        if (!screen) {
+          // Screen deletion
+          store.update(state => ({
+            ...state,
+            screens: state.screens.filter(x => x._id !== screenId),
+          }))
+        } else {
+          const index = get(store).screens.findIndex(x => x._id === screen._id)
+          if (index === -1) {
+            // Screen addition
+            store.update(state => ({
+              ...state,
+              screens: [...state.screens, screen],
+            }))
+          } else {
+            // Screen update
+            store.update(state => {
+              state.screens[index] = screen
+              return state
+            })
+          }
+        }
       },
       delete: async screens => {
         const screensToDelete = Array.isArray(screens) ? screens : [screens]
@@ -853,6 +883,21 @@ export const getFrontendStore = () => {
         store.update(state => ({
           ...state,
           highlightedSettingKey: key,
+        }))
+      },
+    },
+    websocket: {
+      selectResource: id => {
+        websocket.emit(BuilderSocketEvent.SelectResource, {
+          resourceId: id,
+        })
+      },
+    },
+    metadata: {
+      replace: metadata => {
+        store.update(state => ({
+          ...state,
+          ...metadata,
         }))
       },
     },
