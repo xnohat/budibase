@@ -15,6 +15,8 @@
   } from "helpers/data/utils"
   import IntegrationIcon from "./IntegrationIcon.svelte"
   import { notifications } from "@budibase/bbui"
+  import { TableNames } from "constants"
+  import { userSelectedResourceMap } from "builderStore"
 
   let openDataSources = []
   $: enrichedDataSources = Array.isArray($datasources.list)

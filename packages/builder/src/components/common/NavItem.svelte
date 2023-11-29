@@ -1,6 +1,7 @@
 <script>
   import { Icon } from "@budibase/bbui"
   import { createEventDispatcher, getContext } from "svelte"
+  import { helpers } from "@budibase/shared-core"
 
   export let icon
   export let withArrow = false
@@ -17,12 +18,16 @@
   export let highlighted = false
   export let rightAlignIcon = false
   export let id
+  export let showTooltip = false
+  export let selectedBy = null
 
   const scrollApi = getContext("scroll")
   const dispatch = createEventDispatcher()
 
   let contentRef
+
   $: selected && contentRef && scrollToView()
+  $: style = getStyle(indentLevel, selectedBy)
 
   const onClick = () => {
     scrollToView()
@@ -41,8 +46,17 @@
     const bounds = contentRef.getBoundingClientRect()
     scrollApi.scrollTo(bounds)
   }
+
+  const getStyle = (indentLevel, selectedBy) => {
+    let style = `padding-left:calc(${indentLevel * 14}px);`
+    if (selectedBy) {
+      style += `--selected-by-color:${helpers.getUserColor(selectedBy)};`
+    }
+    return style
+  }
 </script>
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
   class="nav-item"
   class:border
@@ -50,8 +64,7 @@
   class:withActions
   class:scrollable
   class:highlighted
-  style={`padding-left: calc(${indentLevel * 20}px)`}
-  {draggable}
+  class:selectedBy
   on:dragend
   on:dragstart
   on:dragover
@@ -60,9 +73,12 @@
   ondragover="return false"
   ondragenter="return false"
   {id}
+  {style}
+  {draggable}
 >
   <div class="nav-item-content" bind:this={contentRef}>
     {#if withArrow}
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
       <div
         class:opened
         class:relative={indentLevel === 0}
@@ -84,7 +100,7 @@
         <Icon color={iconColor} size="S" name={icon} />
       </div>
     {/if}
-    <div class="text">{text}</div>
+    <div class="text" title={showTooltip ? text : null}>{text}</div>
     {#if withActions}
       <div class="actions">
         <slot />
@@ -96,6 +112,9 @@
       </div>
     {/if}
   </div>
+  {#if selectedBy}
+    <div class="selected-by-label">{helpers.getUserLabel(selectedBy)}</div>
+  {/if}
 </div>
 
 <style>
@@ -110,6 +129,7 @@
     flex-direction: row;
     justify-content: flex-start;
     align-items: stretch;
+    position: relative;
   }
   .nav-item.scrollable {
     flex-direction: column;
@@ -139,6 +159,37 @@
     width: max-content;
     position: relative;
     padding-left: var(--spacing-l);
+  }
+
+  /* Selected user styles */
+  .nav-item.selectedBy:after {
+    content: "";
+    position: absolute;
+    width: calc(100% - 4px);
+    height: 28px;
+    border: 2px solid var(--selected-by-color);
+    left: 0;
+    top: 0;
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .selected-by-label {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--selected-by-color);
+    padding: 2px 4px;
+    font-size: 12px;
+    color: white;
+    transform: translateY(calc(1px - 100%));
+    border-top-right-radius: 2px;
+    border-top-left-radius: 2px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 130ms ease-out;
+  }
+  .nav-item.selectedBy:hover .selected-by-label {
+    opacity: 1;
   }
 
   /* Needed to fully display the actions icon */
