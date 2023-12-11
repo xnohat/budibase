@@ -3,7 +3,7 @@ const { getGlobalIDFromUserMetadataID } = require("../db/utils")
 
 const APP_DEV_LOCK_SECONDS = 600
 const AUTOMATION_TEST_FLAG_SECONDS = 60
-let devAppClient, debounceClient, flagClient
+let devAppClient, debounceClient, flagClient, socketClient, socketSubClient
 
 // we init this as we want to keep the connection open all the time
 // reduces the performance hit
@@ -11,15 +11,22 @@ exports.init = async () => {
   devAppClient = new Client(utils.Databases.DEV_LOCKS)
   debounceClient = new Client(utils.Databases.DEBOUNCE)
   flagClient = new Client(utils.Databases.FLAGS)
+  socketClient = new Client(utils.Databases.SOCKET_IO)
   await devAppClient.init()
   await debounceClient.init()
   await flagClient.init()
+  await socketClient.init()
+
+  // Duplicate the socket client for pub/sub
+  socketSubClient = socketClient.getClient().duplicate()
 }
 
 exports.shutdown = async () => {
   if (devAppClient) await devAppClient.finish()
   if (debounceClient) await debounceClient.finish()
   if (flagClient) await flagClient.finish()
+  if (socketClient) await socketClient.finish()
+  if (socketSubClient) socketSubClient.disconnect()
   console.log("Redis shutdown")
 }
 
@@ -82,4 +89,11 @@ exports.checkTestFlag = async id => {
 
 exports.clearTestFlag = async id => {
   await devAppClient.delete(id)
+}
+
+exports.getSocketPubSubClients = () => {
+  return {
+    pub: socketClient.getClient(),
+    sub: socketSubClient,
+  }
 }

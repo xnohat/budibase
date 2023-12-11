@@ -7,7 +7,7 @@ import {
 } from "@budibase/backend-core"
 import { fileUpload } from "../../api/controllers/plugin/file"
 import env from "../../environment"
-import { ClientAppSocket } from "../../websocket"
+import { clientAppSocket } from "../../websockets"
 import { plugins as pluginsPro } from "@budibase/pro"
 
 export async function fetch(type?: PluginType, isInvokeObjectStore = false) {
@@ -47,6 +47,6 @@ export async function processUploaded(plugin: FileType, source?: PluginSource) {
     throw new Error("Only component plugins are supported outside of self-host")
   }
   const doc = await pluginsPro.storePlugin(metadata, directory, source)
-  ClientAppSocket.emit("plugin-update", { name: doc.name, hash: doc.hash })
+  clientAppSocket.emit("plugin-update", { name: doc.name, hash: doc.hash })
   return doc
 }

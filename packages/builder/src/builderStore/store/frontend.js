@@ -28,8 +28,10 @@ import {
 } from "../componentUtils"
 import { Helpers } from "@budibase/bbui"
 import { Utils } from "@budibase/frontend-core"
+import { createBuilderWebsocket } from "builderStore/websocket"
 
 const INITIAL_FRONTEND_STATE = {
+  initialised: false,
   apps: [],
   name: "",
   url: "",
@@ -59,6 +61,8 @@ const INITIAL_FRONTEND_STATE = {
   customTheme: {},
   previewDevice: "desktop",
   highlightedSettingKey: null,
+  builderSidePanel: false,
+  hasLock: true,
 
   // URL params
   selectedScreenId: null,
@@ -68,6 +72,7 @@ const INITIAL_FRONTEND_STATE = {
 
 export const getFrontendStore = () => {
   const store = writable({ ...INITIAL_FRONTEND_STATE })
+  let websocket
 
   // This is a fake implementation of a "patch" API endpoint to try and prevent
   // 409s. All screen doc mutations (aside from creation) use this function,
@@ -92,10 +97,11 @@ export const getFrontendStore = () => {
   store.actions = {
     reset: () => {
       store.set({ ...INITIAL_FRONTEND_STATE })
+      websocket?.disconnect()
     },
     initialise: async pkg => {
-      const { layouts, screens, application, clientLibPath } = pkg
-
+      const { layouts, screens, application, clientLibPath, hasLock } = pkg
+      websocket = createBuilderWebsocket()
       await store.actions.components.refreshDefinitions(application.appId)
 
       // Fetch component definitions.
@@ -127,6 +133,8 @@ export const getFrontendStore = () => {
         revertableVersion: application.revertableVersion,
         navigation: application.navigation || {},
         usedPlugins: application.usedPlugins || [],
+        hasLock,
+        initialised: true,
       }))
 
       // Initialise backend stores

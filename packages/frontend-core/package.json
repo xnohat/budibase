@@ -8,6 +8,7 @@
   "dependencies": {
     "@budibase/bbui": "^2.1.18",
     "lodash": "^4.17.21",
-    "svelte": "^3.46.2"
+    "svelte": "^3.46.2",
+    "socket.io-client": "^4.6.1"
   }
 }
