@@ -4,6 +4,7 @@ export enum LockType {
    * No retries will take place and no error will be thrown.
    */
   TRY_ONCE = "try_once",
+  TRY_TWICE = "try_twice",
 }
 
 export enum LockName {
