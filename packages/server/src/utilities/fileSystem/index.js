@@ -293,19 +293,22 @@ exports.downloadTemplate = async (type, name) => {
 exports.getComponentLibraryManifest = async library => {
   const appId = getAppId()
   const filename = "manifest.json"
-  /* istanbul ignore next */
-  // when testing in cypress and so on we need to get the package
-  // as the environment may not be fully fleshed out for dev or prod
-  if (env.isTest()) {
-    library = library.replace("standard-components", "client")
-    const lib = library.split("/")[1]
-    const path = require.resolve(library).split(lib)[0]
-    return require(join(path, lib, filename))
-  } else if (env.isDev()) {
-    const path = join(NODE_MODULES_PATH, "@budibase", "client", filename)
-    // always load from new so that updates are refreshed
-    delete require.cache[require.resolve(path)]
-    return require(path)
+
+  if (env.isDev() || env.isTest()) {
+    const paths = [
+      join(TOP_LEVEL_PATH, "packages/client", filename),
+      join(process.cwd(), "client", filename),
+    ]
+    for (let path of paths) {
+      if (fs.existsSync(path)) {
+        // always load from new so that updates are refreshed
+        delete require.cache[require.resolve(path)]
+        return require(path)
+      }
+    }
+    throw new Error(
+      `Unable to find ${filename} in development environment (may need to build).`
+    )
   }
 
   let resp

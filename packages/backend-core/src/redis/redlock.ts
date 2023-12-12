@@ -1,7 +1,7 @@
 import Redlock, { Options } from "redlock"
 import { getLockClient } from "./init"
 import { LockOptions, LockType } from "@budibase/types"
-import * as tenancy from "../tenancy"
+import * as context from "../context"
 
 let noRetryRedlock: Redlock | undefined
 
@@ -13,6 +13,9 @@ const getClient = async (type: LockType): Promise<Redlock> => {
       }
       return noRetryRedlock
     }
+    case LockType.TRY_TWICE: {
+      return newRedlock(OPTIONS.TRY_TWICE)
+    }
     default: {
       throw new Error(`Could not get redlock client: ${type}`)
     }
@@ -23,6 +26,9 @@ export const OPTIONS = {
   TRY_ONCE: {
     // immediately throws an error if the lock is already held
     retryCount: 0,
+  },
+  TRY_TWICE: {
+    retryCount: 1,
   },
   DEFAULT: {
     // the expected clock drift; for more details
@@ -50,20 +56,25 @@ export const newRedlock = async (opts: Options = {}) => {
   return new Redlock([client], options)
 }
 
+const getLockName = (opts: LockOptions) => {
+  let name: string
+  if (opts.systemLock) {
+    name = opts.name
+  } else {
+    name = `${context.getTenantId()}_${opts.name}`
+  }
+  if (opts.nameSuffix) {
+    name = name + `_${opts.nameSuffix}`
+  }
+  
+  return name
+}
+
 export const doWithLock = async (opts: LockOptions, task: any) => {
   const redlock = await getClient(opts.type)
   let lock
   try {
-    // aquire lock
-    let name: string
-    if (opts.systemLock) {
-      name = opts.name
-    } else {
-      name = `${tenancy.getTenantId()}_${opts.name}`
-    }
-    if (opts.nameSuffix) {
-      name = name + `_${opts.nameSuffix}`
-    }
+    const name = getLockName(opts)
     lock = await redlock.lock(name, opts.ttl)
     // perform locked task
     return task()

@@ -48,16 +48,25 @@ async function updateAppUpdatedAt(ctx) {
     return
   }
   await doWithDB(appId, async db => {
-    const metadata = await db.get(DocumentType.APP_METADATA)
-    metadata.updatedAt = new Date().toISOString()
-
-    metadata.updatedBy = getGlobalIDFromUserMetadataID(ctx.user.userId)
-
-    const response = await db.put(metadata)
-    metadata._rev = response.rev
-    await appCache.invalidateAppMetadata(appId, metadata)
-    // set a new debounce record with a short TTL
-    await setDebounce(appId, DEBOUNCE_TIME_SEC)
+    try {
+      const metadata = await db.get(DocumentType.APP_METADATA)
+      metadata.updatedAt = new Date().toISOString()
+  
+      metadata.updatedBy = getGlobalIDFromUserMetadataID(ctx.user.userId)
+  
+      const response = await db.put(metadata)
+      metadata._rev = response.rev
+      await appCache.invalidateAppMetadata(appId, metadata)
+      // set a new debounce record with a short TTL
+      await setDebounce(appId, DEBOUNCE_TIME_SEC)
+    } catch (err) {
+      // if a 409 occurs, then multiple clients connected at the same time - ignore
+      if (err?.status === 409) {
+        return
+      } else {
+        throw err
+      }
+    }
   })
 }
 
