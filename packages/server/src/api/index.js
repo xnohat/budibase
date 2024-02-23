@@ -77,12 +77,12 @@ router.post('/api/license', ctx => {
       "constant": {
         "automationLogRetentionDays": {
           "name": "Automation Logs",
-          "value": 3,
+          "value": 1,
           "triggers": []
         },
         "appBackupRetentionDays": {
           "name": "App Backups",
-          "value": -1,
+          "value": 15,
           "triggers": []
         }
       }
@@ -147,12 +147,12 @@ router.post('/api/license/activate', ctx => {
       "constant": {
         "automationLogRetentionDays": {
           "name": "Automation Logs",
-          "value": 3,
+          "value": 1,
           "triggers": []
         },
         "appBackupRetentionDays": {
           "name": "App Backups",
-          "value": -1,
+          "value": 15,
           "triggers": []
         }
       }
