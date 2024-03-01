@@ -40,6 +40,15 @@ export const buildAppEndpoints = API => ({
   },
 
   /**
+   * Compacts the app's databases.
+   */
+  compactAppDB: async () => {
+    return await API.post({
+      url: "/api/deploy/compact",
+    })
+  },
+
+  /**
    * Reverts an app to a previous version.
    * @param appId the app ID to revert
    */

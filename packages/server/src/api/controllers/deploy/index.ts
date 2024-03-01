@@ -128,8 +128,9 @@ async function deployApp(deployment: any, userId: string) {
     }
     replication = new Replication(config)
     const devDb = getDevAppDB()
-    console.log("Compacting development DB")
-    await devDb.compact()
+    //Don't compact the development DB as it will take a long time, move this task to another modal
+    //console.log("Compacting development DB")
+    //await devDb.compact()
     console.log("Replication object created")
     await replication.replicate(replication.appReplicateOpts())
     console.log("replication complete.. replacing app meta doc")
@@ -201,6 +202,18 @@ export async function deploymentProgress(ctx: any) {
 
 export async function forceClearAppCache(ctx: any) {
   ctx.body = await clearAppCache(ctx.params.applicationId)
+}
+
+export async function compactAppDB(ctx: any) {
+  //Compact the development DB
+  const devDb = getDevAppDB()
+  console.log("Compacting development DB")
+  await devDb.compact()
+  //Compact the production DB
+  const db = getProdAppDB()
+  console.log("Compacting production DB")
+  await db.compact()
+  ctx.body = { success: true }
 }
 
 const isFirstDeploy = async () => {

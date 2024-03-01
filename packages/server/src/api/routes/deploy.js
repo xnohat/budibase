@@ -14,5 +14,6 @@ router
   )
   .post("/api/deploy", authorized(BUILDER), controller.deployApp)
   .get("/api/deploy/cache/clear/:applicationId", authorized(BUILDER), controller.forceClearAppCache)
+  .post("/api/deploy/compact", authorized(BUILDER), controller.compactAppDB)
 
 module.exports = router

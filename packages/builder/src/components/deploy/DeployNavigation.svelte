@@ -15,6 +15,7 @@
   import { API } from "api"
   import { onMount } from "svelte"
   import DeployModal from "components/deploy/DeployModal.svelte"
+  import CompactDBModal from "components/deploy/CompactDBModal.svelte"
   import { apps } from "stores/portal"
 
   export let application
@@ -199,6 +200,7 @@
 </ConfirmDialog>
 
 <div class="buttons">
+  <CompactDBModal />
   <Button on:click={previewApp} newStyles secondary>Preview</Button>
   <DeployModal onOk={completePublish} />
 </div>
