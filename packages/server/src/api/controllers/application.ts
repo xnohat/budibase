@@ -392,6 +392,10 @@ export const update = async (ctx: any) => {
   }
 
   const app = await updateAppPackage(ctx.request.body, ctx.params.appId)
+  // Doing update app metadata on app_dev_id too
+  const app_devId = ctx.params.appId.replace("app_", "app_dev_")
+  await updateAppPackage(ctx.request.body, app_devId)
+  
   await events.app.updated(app)
   ctx.status = 200
   ctx.body = app

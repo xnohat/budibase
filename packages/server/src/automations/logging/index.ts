@@ -1,7 +1,8 @@
 import * as env from "../../environment"
-import { AutomationResults, Automation, App } from "@budibase/types"
+import { AutomationResults, Automation, App, DocumentType } from "@budibase/types"
 import { automations } from "@budibase/pro"
 import { db as dbUtils } from "@budibase/backend-core"
+import { context } from "@budibase/backend-core"
 
 export async function storeLog(
   automation: Automation,
@@ -11,6 +12,14 @@ export async function storeLog(
   if (env.DISABLE_AUTOMATION_LOGS) {
     return
   }
+
+  // Check App metadata have extra setting disable_automation_logs
+  const db = context.getAppDB()
+  const appMetadata = await db.get(DocumentType.APP_METADATA)
+  if (appMetadata.disable_automation_logs) {
+    return
+  }
+
   await automations.logs.storeLog(automation, results)
 }
 

@@ -31,6 +31,7 @@
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
   import HistoryTab from "components/portal/overview/automation/HistoryTab.svelte"
   import ExportAppModal from "components/start/ExportAppModal.svelte"
+  import AppExtraSettingModal from "components/start/AppExtraSettingModal.svelte"
   import { checkIncomingDeploymentStatus } from "components/deploy/utils"
   import { onDestroy, onMount } from "svelte"
   import BackupsTab from "components/portal/overview/backups/BackupsTab.svelte"
@@ -41,6 +42,7 @@
   let deletionModal
   let unpublishModal
   let exportModal
+  let appExtraSettingModal
   let appName = ""
   let deployments = []
   let published
@@ -131,6 +133,10 @@
     notifications.success("App ID copied to clipboard.")
   }
 
+  const extraSettingApp = () => {
+    appExtraSettingModal.show()
+  }
+
   const exportApp = opts => {
     published = opts.published
     exportModal.show()
@@ -218,6 +224,10 @@
   <ExportAppModal app={selectedApp} {published} />
 </Modal>
 
+<Modal bind:this={appExtraSettingModal} padding={false} width="600px">
+  <AppExtraSettingModal app={selectedApp} />
+</Modal>
+
 <span class="overview-wrap">
   <Page wide noPadding>
     {#if !loaded || !selectedApp}
@@ -280,6 +290,12 @@
               <span slot="control" class="app-overview-actions-icon">
                 <Icon hoverable name="More" />
               </span>
+              <MenuItem
+                on:click={() => extraSettingApp()}
+                icon="Actions"
+              >
+                Extra Settings
+              </MenuItem>
               <MenuItem
                 on:click={() => exportAppDb(selectedApp)}
                 icon="DataDownload"
