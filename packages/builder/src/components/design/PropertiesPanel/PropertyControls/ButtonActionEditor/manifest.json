@@ -44,7 +44,13 @@
     },
     {
       "name": "Trigger Automation",
-      "component": "TriggerAutomation"
+      "component": "TriggerAutomation",
+      "context": [
+        {
+          "label": "Automation result",
+          "value": "result"
+        }
+      ]
     },
     {
       "name": "Update Field Value",

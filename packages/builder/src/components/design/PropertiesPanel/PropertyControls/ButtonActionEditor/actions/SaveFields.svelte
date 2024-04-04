@@ -14,8 +14,18 @@
   let fields = Object.entries(parameterFields || {})
   $: onChange(fields)
 
+  //check schemaFields for field name get_automation_output, if not found, add it with type is boolean
+  if (schemaFields != undefined && !schemaFields?.find(field => field.name === "get_automation_output")) {
+    schemaFields.push({ name: "get_automation_output", type: "boolean" })
+  }
+
   const addField = () => {
-    fields = [...fields.filter(field => field[0]), ["", ""]]
+    // check field name get_automation_output, if not found, add it to the fields
+    if (fields != undefined && !fields?.find(field => field[0] === "get_automation_output")) {
+      fields = [...fields, ["get_automation_output", "false"]]
+    } else {
+      fields = [...fields.filter(field => field[0]), ["", ""]]
+    }
   }
 
   const removeField = name => {

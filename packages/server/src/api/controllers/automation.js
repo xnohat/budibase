@@ -247,13 +247,33 @@ module.exports.getDefinitionList = async function (ctx) {
 exports.trigger = async function (ctx) {
   const db = getAppDB()
   let automation = await db.get(ctx.params.id)
-  await triggers.externalTrigger(automation, {
-    ...ctx.request.body,
-    appId: ctx.appId,
-  })
-  ctx.body = {
-    message: `Automation ${automation._id} has been triggered.`,
-    automation,
+  if(ctx.request.body.fields.get_automation_output == "true") {
+    const response = await triggers.externalTrigger(
+      automation,
+      {
+        api: true,
+        body: ctx.request.body,
+        ...ctx.request.body,
+        appId: ctx.appId,
+      },
+      { getResponses: true }
+    )
+    ctx.status = 200
+    //return the last automation step executed output as api return
+    ctx.body = {
+      message: `Automation ${automation._id} has been triggered.`,
+      automation,
+      output: response.steps.filter((step) => step.outputs.status !== "stopped").slice(-1)[0].outputs
+    }
+  }else {
+    await triggers.externalTrigger(automation, {
+      ...ctx.request.body,
+      appId: ctx.appId,
+    })
+    ctx.body = {
+      message: `Automation ${automation._id} has been triggered.`,
+      automation,
+    }
   }
 }
 

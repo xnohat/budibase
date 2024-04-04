@@ -103,11 +103,12 @@ const triggerAutomationHandler = async action => {
   const { fields } = action.parameters
   if (fields) {
     try {
-      await API.triggerAutomation({
+      const result = await API.triggerAutomation({
         automationId: action.parameters.automationId,
         fields,
       })
       notificationStore.actions.success("Automation triggered")
+      return { result }
     } catch (error) {
       // Abort next actions
       return false
