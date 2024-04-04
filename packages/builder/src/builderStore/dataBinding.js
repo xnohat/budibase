@@ -609,6 +609,11 @@ const getRoleBindings = () => {
         bindings.push({
           readableBinding: `Action ${idx + 1}.${contextValue.label}`,
           runtimeBinding: `actions.${idx}.${contextValue.value}`,
+          category: "Actions",
+          icon: "JourneyAction",
+          display: {
+            name: contextValue.label,
+          },
         })
       })
     }
