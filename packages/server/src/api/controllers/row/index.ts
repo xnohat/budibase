@@ -121,14 +121,21 @@ export async function search(ctx: any) {
     datasourceId: tableId,
   }) */
 
-  const search_result = await cache.withCache(
-    "row_api_search_:app_"+ctx.appId+":table_"+tableId+":payload_"+Buffer.from(JSON.stringify(ctx.request.body)).toString('base64'),
-    3600, //seconds
-    async () => {
-      return await quotas.addQuery(() => pickApi(tableId).search(ctx), {
-        datasourceId: tableId,
-      })
+  var search_result
+  if(process.env.SEARCH_CACHE != "1") { // Search Cache is disabled
+    search_result = await quotas.addQuery(() => pickApi(tableId).search(ctx), {
+      datasourceId: tableId,
     })
+  } else {
+    search_result = await cache.withCache(
+      "row_api_search_:app_"+ctx.appId+":table_"+tableId+":payload_"+Buffer.from(JSON.stringify(ctx.request.body)).toString('base64'),
+      3600, //seconds
+      async () => {
+        return await quotas.addQuery(() => pickApi(tableId).search(ctx), {
+          datasourceId: tableId,
+        })
+      })
+  }
   ctx.body = search_result
 }
 
