@@ -108,9 +108,9 @@ async function deployApp(deployment: any, userId: string) {
     const devAppId = getDevelopmentAppID(appId)
     const productionAppId = getProdAppID(appId)
 
-    
+    // Disable auto backups before deployment for speedup deployment
     // don't try this if feature isn't allowed, will error
-    if (await backups.isEnabled()) {
+    /* if (await backups.isEnabled()) {
       // trigger backup initially
       await backups.triggerAppBackup(
         productionAppId,
@@ -120,7 +120,7 @@ async function deployApp(deployment: any, userId: string) {
           name: 'Backup before publish', 
         }
       )
-    }
+    } */
     
     const config: any = {
       source: devAppId,
