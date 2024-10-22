@@ -1,13 +1,13 @@
 <script>
   import DashCard from "components/common/DashCard.svelte"
   import { AppStatus } from "constants"
-  import { Icon, Heading, Link, Avatar, Layout, Body } from "@budibase/bbui"
+  import { Icon, Heading, Link, Layout, Body } from "@budibase/bbui"
   import { store } from "builderStore"
   import clientPackage from "@budibase/client/package.json"
   import { processStringSync } from "@budibase/string-templates"
   import { users, auth, apps, groups } from "stores/portal"
   import { createEventDispatcher } from "svelte"
-  import { fetchData } from "@budibase/frontend-core"
+  import { fetchData, UserAvatar } from "@budibase/frontend-core"
   import { API } from "api"
   import GroupIcon from "../../manage/groups/_components/GroupIcon.svelte"
 
@@ -56,14 +56,6 @@
   async function fetchAppEditor(editorId) {
     appEditor = await users.get(editorId)
   }
-
-  const getInitials = user => {
-    let initials = ""
-    initials += user.firstName ? user.firstName[0] : ""
-    initials += user.lastName ? user.lastName[0] : ""
-
-    return initials === "" ? user.email[0] : initials
-  }
 </script>
 
 <div class="overview-tab">
@@ -106,7 +98,7 @@
           <div class="last-edited-content">
             <div class="updated-by">
               {#if appEditor}
-                <Avatar size="M" initials={getInitials(appEditor)} />
+                <UserAvatar user={appEditor} showTooltip={false} />
                 <div class="editor-name">
                   {appEditor._id === $auth.user._id ? "You" : appEditorText}
                 </div>
@@ -171,7 +163,7 @@
                   <div class="users">
                     <div class="list">
                       {#each appUsers.slice(0, 4) as user}
-                        <Avatar size="M" initials={getInitials(user)} />
+                        <UserAvatar user={appEditor} showTooltip={false} />
                       {/each}
                     </div>
                     <div class="text">

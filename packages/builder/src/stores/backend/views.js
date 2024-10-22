@@ -28,24 +28,30 @@ export function createViewsStore() {
     },
     delete: async view => {
       await API.deleteView(view)
-      await tables.fetch()
+      //await tables.fetch()
+      // Update tables
+      tables.update(state => {
+        const table = state.list.find(table => table._id === view.tableId)
+        if (table) {
+          delete table.views[view.name]
+        }
+        return { ...state }
+    })
     },
     save: async view => {
       const savedView = await API.saveView(view)
-      const viewMeta = {
-        name: view.name,
-        ...savedView,
-      }
 
-      const viewTable = get(tables).list.find(
-        table => table._id === view.tableId
-      )
-
-      if (view.originalName) delete viewTable.views[view.originalName]
-      viewTable.views[view.name] = viewMeta
-      await tables.save(viewTable)
-
-      update(state => ({ ...state, selected: viewMeta }))
+      // Update tables
+      tables.update(state => {
+        const table = state.list.find(table => table._id === view.tableId)
+        if (table) {
+          if (view.originalName) {
+            delete table.views[view.originalName]
+          }
+          table.views[view.name] = savedView
+        }
+        return { ...state }
+      })      
     },
   }
 }

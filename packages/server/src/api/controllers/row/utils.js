@@ -106,3 +106,15 @@ exports.validate = async ({ tableId, row, table }) => {
   }
   return { valid: Object.keys(errors).length === 0, errors }
 }
+
+exports.getTableId = async (ctx) => {
+  if (ctx.request.body && ctx.request.body.tableId) {
+    return ctx.request.body.tableId
+  }
+  if (ctx.params && ctx.params.tableId) {
+    return ctx.params.tableId
+  }
+  if (ctx.params && ctx.params.viewName) {
+    return ctx.params.viewName
+  }
+}

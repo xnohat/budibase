@@ -31,6 +31,40 @@ export function createDatasourcesStore() {
     return datasource
   }
 
+  // Handles external updates of datasources
+  const replaceDatasource = (datasourceId, datasource) => {
+    
+    if (!datasourceId) {
+      return
+    }
+
+    // Handle deletion
+    if (!datasource) {
+      store.update(state => ({
+        ...state,
+        list: state.list.filter(x => x._id !== datasourceId),
+      }))
+      return
+    }
+
+    // Add new datasource
+    const index = get(store).list.findIndex(x => x._id === datasource._id)
+    if (index === -1) {
+      store.update(state => ({
+        ...state,
+        list: [...state.list, datasource],
+      }))
+    }
+
+    // Update existing datasource
+    else if (datasource) {
+      store.update(state => {
+        state.list[index] = datasource
+        return state
+      })
+    }
+  }
+
   return {
     subscribe,
     update,
@@ -99,6 +133,7 @@ export function createDatasourcesStore() {
         return { ...state, schemaError: null }
       })
     },
+    replaceDatasource,
   }
 }
 

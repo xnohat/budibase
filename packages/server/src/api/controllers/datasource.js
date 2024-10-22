@@ -12,6 +12,7 @@ const { getDatasourceAndQuery } = require("./row/utils")
 const { invalidateDynamicVariables } = require("../../threads/utils")
 const { getAppDB } = require("@budibase/backend-core/context")
 const { events } = require("@budibase/backend-core")
+const { builderSocket } = require("../../websockets")
 
 exports.fetch = async function (ctx) {
   // Get internal tables
@@ -156,6 +157,7 @@ exports.update = async function (ctx) {
   ctx.status = 200
   ctx.message = "Datasource saved successfully."
   ctx.body = { datasource }
+  builderSocket.emitDatasourceUpdate(ctx, datasource)
 }
 
 exports.save = async function (ctx) {
@@ -194,6 +196,7 @@ exports.save = async function (ctx) {
     response.error = schemaError
   }
   ctx.body = response
+  builderSocket.emitDatasourceUpdate(ctx, datasource)
 }
 
 exports.destroy = async function (ctx) {
@@ -217,6 +220,7 @@ exports.destroy = async function (ctx) {
 
   ctx.message = `Datasource deleted.`
   ctx.status = 200
+  builderSocket.emitDatasourceDeletion(ctx, datasourceId)
 }
 
 exports.find = async function (ctx) {

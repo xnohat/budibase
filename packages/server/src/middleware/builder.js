@@ -33,12 +33,11 @@ async function checkDevAppLocks(ctx) {
   if (!appId || !appId.startsWith(APP_DEV_PREFIX)) {
     return
   }
-  if (!(await doesUserHaveLock(appId, ctx.user))) {
-    ctx.throw(400, "User does not hold app lock.")
-  }
 
-  // they do have lock, update it
-  await updateLock(appId, ctx.user)
+  // If this user already owns the lock, then update it
+  if (await doesUserHaveLock(appId, ctx.user)) {
+    await updateLock(appId, ctx.user)
+  }
 }
 
 async function updateAppUpdatedAt(ctx) {
@@ -49,16 +48,25 @@ async function updateAppUpdatedAt(ctx) {
     return
   }
   await doWithDB(appId, async db => {
-    const metadata = await db.get(DocumentType.APP_METADATA)
-    metadata.updatedAt = new Date().toISOString()
-
-    metadata.updatedBy = getGlobalIDFromUserMetadataID(ctx.user.userId)
-
-    const response = await db.put(metadata)
-    metadata._rev = response.rev
-    await appCache.invalidateAppMetadata(appId, metadata)
-    // set a new debounce record with a short TTL
-    await setDebounce(appId, DEBOUNCE_TIME_SEC)
+    try {
+      const metadata = await db.get(DocumentType.APP_METADATA)
+      metadata.updatedAt = new Date().toISOString()
+  
+      metadata.updatedBy = getGlobalIDFromUserMetadataID(ctx.user.userId)
+  
+      const response = await db.put(metadata)
+      metadata._rev = response.rev
+      await appCache.invalidateAppMetadata(appId, metadata)
+      // set a new debounce record with a short TTL
+      await setDebounce(appId, DEBOUNCE_TIME_SEC)
+    } catch (err) {
+      // if a 409 occurs, then multiple clients connected at the same time - ignore
+      if (err?.status === 409) {
+        return
+      } else {
+        throw err
+      }
+    }
   })
 }
 

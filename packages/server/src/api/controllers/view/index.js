@@ -9,6 +9,8 @@ const { events } = require("@budibase/backend-core")
 const { DocumentType } = require("../../../db/utils")
 const { cloneDeep, isEqual } = require("lodash")
 const sdk = require("../../../sdk")
+const { builderSocket } = require("../../../websockets")
+
 
 exports.fetch = async ctx => {
   ctx.body = await getViews()
@@ -33,7 +35,7 @@ exports.save = async ctx => {
   if (!view.meta.schema) {
     view.meta.schema = table.schema
   }
-  table.views[viewName] = view.meta
+  table.views[viewName] = { ...view.meta, name: viewName }
   if (originalName) {
     delete table.views[originalName]
     existingTable.views[viewName] = existingTable.views[originalName]
@@ -41,10 +43,8 @@ exports.save = async ctx => {
   await db.put(table)
   await handleViewEvents(existingTable.views[viewName], table.views[viewName])
 
-  ctx.body = {
-    ...table.views[viewToSave.name],
-    name: viewToSave.name,
-  }
+  ctx.body = table.views[viewName]
+  builderSocket.emitTableUpdate(ctx, table)
 }
 
 const calculationEvents = async (existingView, newView) => {
@@ -113,6 +113,7 @@ exports.destroy = async ctx => {
   await events.view.deleted(view)
 
   ctx.body = view
+  builderSocket.emitTableUpdate(ctx, table)
 }
 
 exports.exportView = async ctx => {

@@ -31,7 +31,7 @@ const {
 import { USERS_TABLE_SCHEMA } from "../../constants"
 import { removeAppFromUserRoles } from "../../utilities/workerRequests"
 import { clientLibraryPath, stringToReadStream } from "../../utilities"
-import { getLocksById } from "../../utilities/redis"
+const { getLocksById, doesUserHaveLock } = require("../../utilities/redis")
 import {
   updateClientLibrary,
   backupClientLibrary,
@@ -223,6 +223,7 @@ export const fetchAppPackage = async (ctx: any) => {
     screens,
     layouts,
     clientLibPath: clientLibraryPath(ctx.params.appId, application.version),
+    hasLock: await doesUserHaveLock(application.appId, ctx.user),
   }
 }
 

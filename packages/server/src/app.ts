@@ -21,9 +21,8 @@ const automations = require("./automations/index")
 const Sentry = require("@sentry/node")
 const { logAlert } = require("@budibase/backend-core/logging")
 const { Thread } = require("./threads")
-import redis from "./utilities/redis"
+import * as redis from "./utilities/redis"
 import { events } from "@budibase/backend-core"
-import { initialise as initialiseWebsockets } from "./websocket"
 import { startup } from "./startup"
 
 const app = new Koa()
@@ -59,7 +58,7 @@ if (env.isProd()) {
 
 const server = http.createServer(app.callback())
 destroyable(server)
-initialiseWebsockets(server)
+// initialiseWebsockets(server)
 
 let shuttingDown = false,
   errCode = 0

@@ -26,7 +26,6 @@
   import { apps, auth, groups } from "stores/portal"
   import analytics, { Events, EventSource } from "analytics"
   import { AppStatus } from "constants"
-  import AppLockModal from "components/common/AppLockModal.svelte"
   import EditableIcon from "components/common/EditableIcon.svelte"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
   import HistoryTab from "components/portal/overview/automation/HistoryTab.svelte"
@@ -119,12 +118,6 @@
   }
 
   const editApp = app => {
-    if (lockedBy && !lockedByYou) {
-      notifications.warning(
-        `App locked by ${lockIdentifer}. Please allow lock to expire or have them unlock this app.`
-      )
-      return
-    }
     $goto(`../../../app/${app.devId}`)
   }
 
@@ -261,7 +254,6 @@
             </div>
           </div>
           <div class="header-right">
-            <AppLockModal app={selectedApp} />
             <ButtonGroup gap="XS">
               <Button
                 size="M"

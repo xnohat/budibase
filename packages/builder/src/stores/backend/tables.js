@@ -5,7 +5,10 @@ import { API } from "api"
 import { SWITCHABLE_TYPES } from "constants/backend"
 
 export function createTablesStore() {
-  const store = writable({})
+  const store = writable({
+    list: [],
+    selected: null,
+  })
   const { subscribe, update, set } = store
 
   async function fetch() {
@@ -68,12 +71,53 @@ export function createTablesStore() {
     }
 
     const savedTable = await API.saveTable(updatedTable)
-    await fetch()
+    // await fetch()
+    replaceTable(table._id, savedTable)
     if (table.type === "external") {
       await datasources.fetch()
     }
-    await select(savedTable)
+    // await select(savedTable)
+    select(savedTable)
     return savedTable
+  }
+
+  // Handles external updates of tables
+  const replaceTable = (tableId, table) => {
+    if (!tableId) {
+      return
+    }
+
+    // Handle deletion
+    if (!table) {
+      store.update(state => ({
+        ...state,
+        list: state.list.filter(x => x._id !== tableId),
+      }))
+      return
+    }
+
+    // Add new table
+    const index = get(store).list.findIndex(x => x._id === table._id)
+    if (index === -1) {
+      store.update(state => ({
+        ...state,
+        list: [...state.list, table],
+      }))
+    }
+
+    // Update existing table
+    else if (table) {
+      // This function has to merge state as there discrepancies with the table
+      // API endpoints. The table list endpoint and get table endpoint use the
+      // "type" property to mean different things.
+      store.update(state => {
+        state.list[index] = {
+          ...table,
+          type: state.list[index].type,
+        }
+        return state
+      })
+    }
   }
 
   return {
@@ -97,6 +141,9 @@ export function createTablesStore() {
       })
     },
     delete: async table => {
+      if (!table?._id || !table?._rev) {
+        return
+      }
       await API.deleteTable({
         tableId: table?._id,
         tableRev: table?._rev,
@@ -106,6 +153,7 @@ export function createTablesStore() {
         list: state.list.filter(existing => existing._id !== table._id),
         selected: {},
       }))
+      replaceTable(table._id, null)
     },
     saveField: async ({
       originalName,
@@ -162,6 +210,7 @@ export function createTablesStore() {
         await promise
       }
     },
+    replaceTable,
   }
 }
 

@@ -6,6 +6,7 @@ const { getDatasourceParams } = require("../../../db/utils")
 const { getAppDB } = require("@budibase/backend-core/context")
 const { events } = require("@budibase/backend-core")
 const sdk = require("../../../sdk")
+const sockets = require("../../../websockets")
 
 function pickApi({ tableId, table }) {
   if (table && !tableId) {
@@ -72,6 +73,9 @@ exports.save = async function (ctx) {
   ctx.eventEmitter &&
     ctx.eventEmitter.emitTable(`table:save`, appId, savedTable)
   ctx.body = savedTable
+  console.log({sockets})
+  console.log(sockets.builderSocket)
+  sockets.builderSocket.emitTableUpdate(ctx, savedTable)
 }
 
 exports.destroy = async function (ctx) {
@@ -84,6 +88,7 @@ exports.destroy = async function (ctx) {
   ctx.status = 200
   ctx.table = deletedTable
   ctx.body = { message: `Table ${tableId} deleted.` }
+  sockets.builderSocket.emitTableDeletion(ctx, tableId)
 }
 
 exports.bulkImport = async function (ctx) {

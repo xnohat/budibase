@@ -1,5 +1,5 @@
 import * as env from "./environment"
-import redis from "./utilities/redis"
+import * as redis from "./utilities/redis"
 import {
   createAdminUser,
   generateApiKey,
@@ -23,6 +23,7 @@ import api from "./api"
 import sdk from "./sdk"
 import * as listeners from "./listeners"
 const pino = require("koa-pino-logger")
+import { initialise as initialiseWebsockets } from "./websockets"
 
 let STARTUP_RAN = false
 
@@ -70,6 +71,9 @@ export async function startup(app?: any, server?: any) {
   eventEmitter.emitPort(env.PORT)
   fileSystem.init()
   await redis.init()
+
+  initialiseWebsockets(app, server)
+
 
   // run migrations on startup if not done via http
   // not recommended in a clustered environment

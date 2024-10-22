@@ -6,6 +6,15 @@
   import CreateWebhookModal from "components/automation/Shared/CreateWebhookModal.svelte"
   import TestPanel from "components/automation/AutomationBuilder/TestPanel.svelte"
   import { onMount } from "svelte"
+  import { store } from "builderStore"
+  import { redirect } from "@roxi/routify"
+
+  // Prevent access for other users than the lock holder
+  $: {
+    if (!$store.hasLock) {
+      $redirect("../data")
+    }
+  }
 
   $: automation =
     $automationStore.selectedAutomation?.automation ||

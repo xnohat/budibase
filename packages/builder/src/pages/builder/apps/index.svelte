@@ -5,7 +5,6 @@
     Divider,
     ActionMenu,
     MenuItem,
-    Avatar,
     Page,
     Icon,
     Body,
@@ -22,6 +21,7 @@
   import { processStringSync } from "@budibase/string-templates"
   import Spaceman from "assets/bb-space-man.svg"
   import Logo from "assets/bb-emblem.svg"
+  import { UserAvatar } from "@budibase/frontend-core"
 
   let loaded = false
   let userInfoModal
@@ -85,6 +85,26 @@
       // Swallow error and do nothing
     }
   }
+
+  /**
+   * Gets a friendly label to describe who a user is.
+   * @param user the user
+   */
+  export const getUserLabel = user => {
+    if (!user) {
+      return ""
+    }
+    const { firstName, lastName, email } = user
+    if (firstName && lastName) {
+      return `${firstName} ${lastName}`
+    } else if (firstName) {
+      return firstName
+    } else if (lastName) {
+      return lastName
+    } else {
+      return email
+    }
+  }
 </script>
 
 {#if $auth.user && loaded}
@@ -96,11 +116,7 @@
             <img class="logo" alt="logo" src={$organisation.logoUrl || Logo} />
             <ActionMenu align="right" dataCy="user-menu">
               <div slot="control" class="avatar">
-                <Avatar
-                  size="M"
-                  initials={$auth.initials}
-                  url={$auth.user.pictureUrl}
-                />
+                <UserAvatar user={$auth.user} showTooltip={false} />
                 <Icon size="XL" name="ChevronDown" />
               </div>
               <MenuItem icon="UserEdit" on:click={() => userInfoModal.show()}>
@@ -125,7 +141,7 @@
           </div>
           <Layout noPadding gap="XS">
             <Heading size="M">
-              Hey {$auth.user.firstName || $auth.user.email}
+              Hey {getUserLabel($auth.user)}
             </Heading>
             <Body>
               Welcome to the {$organisation.company} portal. Below you'll find the
